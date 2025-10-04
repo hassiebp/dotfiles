@@ -1,0 +1,7 @@
+[user]
+	email = 68423100+hassiebp@users.noreply.github.com
+	name = Hassieb Pakzad
+[push]
+	autoSetupRemote = true
+[diff]
+  external = difft

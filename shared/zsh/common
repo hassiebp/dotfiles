@@ -1,0 +1,97 @@
+# Common aliases
+alias python=python3
+alias vim=nvim
+alias pip=pip3
+
+# aliases
+alias glop='git log --oneline --graph --decorate --date=short --pretty=format:"%C(auto)%h %C(green)(%ad) %C(yellow)%d%Creset %s %C(bold blue)<%an>%Creset"'
+
+gbf() {
+  local branch
+  branch=$(git branch --color=always \
+    | rg -v '^\*' \
+    | sed 's/^..//' \
+    | fzf --height=42% --reverse --ansi --query="$1" \
+          --preview 'git log --color=always --decorate --abbrev-commit --date=short --pretty=format:"%C(auto)%h %ad %d %s" -n 10 {}' \
+          --preview-window=right:62%)
+
+  [[ -n "$branch" ]] && git checkout "${branch##*/}"
+}
+
+vimf() {
+  local file
+  file=$(fzf \
+    --query="$1" \
+    --height=62% \
+    --reverse \
+    --info=inline \
+    --preview 'bat --style=numbers --color=always --line-range :200 {}' \
+    --preview-window=right:62%)
+
+  [[ -n "$file" ]] && nvim "$file" "${@:2}"
+}
+
+rgf() {
+  local pick file line
+  pick=$(
+    rg --no-heading --line-number --column --color=always "${1:-.}" \
+    | fzf --ansi --reverse --height=62% --delimiter=':' \
+          --preview 'bash -c '\''file="$1"; line="$2";
+            start=$((line-15)); (( start<1 )) && start=1
+            end=$((line+15))
+            bat --style=numbers --color=always --line-range ${start}:${end} \
+                --highlight-line ${line} "$file"'\'' -- {1} {2}' \
+          --preview-window=right:62%
+  ) || return
+
+  file=$(echo "$pick" | cut -d: -f1)
+  line=$(echo "$pick" | cut -d: -f2)
+  [[ -n "$file" && -n "$line" ]] && nvim "+${line}" "$file"
+}
+
+gdf() {
+  local file
+  file=$(git status --porcelain | awk '{print $2}' \
+        | fzf --reverse --height=42% --preview 'git diff --color=always -- {1}' \
+              --preview-window=right:62%)
+  [[ -n "$file" ]] && git diff --color=always -- "$file"
+}
+
+zf() {
+  local dir
+  dir=$(zoxide query -l | fzf --reverse --height=42% --preview 'ls -la {} | head -200' --preview-window=right:60%)
+  [[ -n "$dir" ]] && cd "$dir"
+}
+
+# tmux
+alias tm=tmux
+alias tma='tmux attach'
+alias tml='tmux ls'
+alias tmd='tmux detach'
+alias tmks='tmux kill-session'
+
+alias tg=terragrunt
+
+# Common env variables
+export EDITOR=nvim
+export VISUAL=nvim
+export MANPAGER='nvim +Man!'
+
+# nvm configuration (if installed)
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+# pyenv configuration (if installed)
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+command -v pyenv >/dev/null && eval "$(pyenv init -)"
+
+
+export FZF_DEFAULT_COMMAND='fd --type file --strip-cwd-prefix --color=always'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_DEFAULT_OPTS="--ansi"
+
+# Greater shell history
+export HISTSIZE=10000
+export SAVEHIST=100000

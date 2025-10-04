@@ -1,0 +1,5 @@
+theme = Github Light Default
+font-size = 15
+font-family = JetBrainsMono
+shell-integration-features = no-cursor
+macos-option-as-alt = true

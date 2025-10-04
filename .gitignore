@@ -1,0 +1,32 @@
+# Package management files (keep locally, don't version control)
+macos/Brewfile
+linux/packages.txt
+
+# SSH config contains sensitive information
+macos/ssh/
+
+# Backup directory
+.dotfiles_backup/
+
+# OS-specific
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.*.swp
+.*.swo
+
+# Tmux local config
+.tmux-projects.conf
+
+# Local machine-specific configs
+*.local
