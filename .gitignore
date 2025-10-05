@@ -30,3 +30,5 @@ Thumbs.db
 
 # Local machine-specific configs
 *.local
+
+shared/pgcli/history

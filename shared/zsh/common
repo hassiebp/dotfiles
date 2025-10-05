@@ -95,3 +95,14 @@ export FZF_DEFAULT_OPTS="--ansi"
 # Greater shell history
 export HISTSIZE=10000
 export SAVEHIST=100000
+
+# fzf key bindings
+source <(fzf --zsh)
+
+# eza alias (if installed)
+if command -v eza >/dev/null 2>&1; then
+  alias ls=eza
+  alias ll="eza --long"
+  alias lt="eza --tree"
+  alias llt="eza --long --tree"
+fi

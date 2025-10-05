@@ -7,17 +7,6 @@ ZSH_THEME="robbyrussell"
 plugins=(git) 
 source $ZSH/oh-my-zsh.sh
 
-# fzf key bindings
-source <(fzf --zsh)
-
-# eza alias (if installed)
-if command -v eza >/dev/null 2>&1; then
-  alias ls=eza
-  alias ll="eza --long"
-  alias lt="eza --tree"
-  alias llt="eza --long --tree"
-fi
-
 # macOS specific sources
 if command -v brew >/dev/null 2>&1; then
     source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
