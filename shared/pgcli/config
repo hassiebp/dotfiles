@@ -79,3 +79,7 @@ keyword_casing = auto
 
 # disabled pager on startup
 enable_pager = True
+
+# show results in vertical format
+# can also be toggled with '\x'
+expand = True

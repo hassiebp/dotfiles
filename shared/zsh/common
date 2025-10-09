@@ -3,6 +3,8 @@ alias python=python3
 alias vim=nvim
 alias pip=pip3
 
+alias lg=lazygit
+
 # aliases
 alias glop='git log --oneline --graph --decorate --date=short --pretty=format:"%C(auto)%h %C(green)(%ad) %C(yellow)%d%Creset %s %C(bold blue)<%an>%Creset"'
 
