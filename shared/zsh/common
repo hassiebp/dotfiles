@@ -65,6 +65,34 @@ zf() {
   [[ -n "$dir" ]] && cd "$dir"
 }
 
+scratch() {
+  local ext="md"
+  local name=""
+
+  # Usage:
+  #   scratch                 → scratch-<ts>.md
+  #   scratch txt             → scratch-<ts>.txt
+  #   scratch md notes        → scratch-<ts>-notes.md
+  #   scratch txt "my note"   → scratch-<ts>-my note.txt
+
+  if [[ -n "$1" ]]; then
+    ext="${1#.}"   # remove leading dot if provided
+  fi
+
+  if [[ -n "$2" ]]; then
+    name="-$2"
+  fi
+
+  local dir="$HOME/scratch"
+  mkdir -p "$dir"
+
+  local ts
+  ts=$(date +%Y%m%d-%H%M%S)
+
+  local file="$dir/${ts}${name}.$ext"
+  $EDITOR "$file"
+}
+
 # tmux
 alias tm=tmux
 alias tma='tmux attach'
