@@ -1,4 +1,4 @@
-theme = Github Light Default
+theme = light:GitHub Light Default,dark:GitHub Dark Default
 font-size = 15
 font-family = JetBrainsMono
 shell-integration-features = no-cursor

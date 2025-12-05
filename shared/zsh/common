@@ -69,28 +69,40 @@ scratch() {
   local ext="md"
   local name=""
 
-  # Usage:
-  #   scratch                 → scratch-<ts>.md
-  #   scratch txt             → scratch-<ts>.txt
-  #   scratch md notes        → scratch-<ts>-notes.md
-  #   scratch txt "my note"   → scratch-<ts>-my note.txt
-
-  if [[ -n "$1" ]]; then
-    ext="${1#.}"   # remove leading dot if provided
-  fi
-
-  if [[ -n "$2" ]]; then
-    name="-$2"
-  fi
+  # Parse options
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -e|--extension)
+        ext="${2#.}"  # remove leading dot if provided
+        shift 2
+        ;;
+      -*)
+        echo "Unknown option: $1" >&2
+        echo "Usage: scratch [name] [-e|--extension EXT]" >&2
+        return 1
+        ;;
+      *)
+        name="-$1"
+        shift
+        ;;
+    esac
+  done
 
   local dir="$HOME/scratch"
   mkdir -p "$dir"
 
   local ts
   ts=$(date +%Y%m%d-%H%M%S)
-
   local file="$dir/${ts}${name}.$ext"
+
   $EDITOR "$file"
+}
+
+scf() {
+  local file
+  file=$(ls $HOME/scratch | fzf --reverse --height=42% --preview 'bat $HOME/scratch/{} | head -200' --preview-window=right:60%)
+
+  $EDITOR $HOME/scratch/$file
 }
 
 # tmux
@@ -107,10 +119,19 @@ export EDITOR=nvim
 export VISUAL=nvim
 export MANPAGER='nvim +Man!'
 
-# nvm configuration (if installed)
+# Lazy-load NVM (saves ~500ms shell startup time)
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+if [ -s "$NVM_DIR/nvm.sh" ]; then
+  __load_nvm() {
+    unset -f node npm npx nvm __load_nvm
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  }
+  node() { __load_nvm && node "$@"; }
+  npm() { __load_nvm && npm "$@"; }
+  npx() { __load_nvm && npx "$@"; }
+  nvm() { __load_nvm && nvm "$@"; }
+fi
 
 # pyenv configuration (if installed)
 export PYENV_ROOT="$HOME/.pyenv"
@@ -122,9 +143,11 @@ export FZF_DEFAULT_COMMAND='fd --type file --strip-cwd-prefix --color=always'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_DEFAULT_OPTS="--ansi"
 
-# Greater shell history
+# Shell history
 export HISTSIZE=10000
 export SAVEHIST=100000
+setopt INC_APPEND_HISTORY    # Write to history immediately, not on shell exit
+setopt SHARE_HISTORY         # Share history between all sessions
 
 # fzf key bindings
 source <(fzf --zsh)
