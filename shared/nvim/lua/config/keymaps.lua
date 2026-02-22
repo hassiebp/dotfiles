@@ -31,3 +31,7 @@ map("n", "<leader>fa", function()
     follow = true,
   })
 end, { desc = "Find all files (hidden + ignored)" })
+
+map("n", "<leader>gm", function()
+  require("snacks").picker.git_status()
+end, { desc = "Git modified files" })

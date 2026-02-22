@@ -1,76 +1,57 @@
-#!/bin/zsh
+#!/usr/bin/env bash
+set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 BACKUP_DIR="$HOME/.dotfiles_backup"
 
-setup_environment() {
-   case "$(uname)" in
-       "Darwin")
-           OS="macos"
-           ;;
-       "Linux")
-           OS="linux"
-           ;;
-   esac
-}
-
-get_symlinks() {
-   typeset -A links=(
-       "shared/git/gitconfig" "$HOME/.gitconfig"
-       "shared/tmux/tmux.conf" "$HOME/.tmux.conf"
-       "shared/nvim" "$HOME/.config/nvim"
-       "shared/pgcli" "$HOME/.config/pgcli"
-   )
-
-   case "$OS" in
-       "macos")
-           links+=(
-               "macos/zshrc" "$HOME/.zshrc"
-               "macos/ghostty" "$HOME/.config/ghostty"
-           )
-           ;;
-       "linux")
-           links+=("linux/zshrc" "$HOME/.zshrc")
-           ;;
-   esac
-
-   echo ${(kv)links}
-}
+# Detect OS
+case "$(uname)" in
+    Darwin) OS="macos" ;;
+    Linux)  OS="linux" ;;
+    *)      echo "Unsupported OS"; exit 1 ;;
+esac
 
 link_file() {
-   local src="$DOTFILES_DIR/$1" dest="$2"
+    local src="$DOTFILES_DIR/$1"
+    local dest="$2"
 
-   # Skip if symlink already points to correct location
-   if [[ -L "$dest" && "$(readlink "$dest")" == "$src" ]]; then
-       echo "✓ Already linked: $dest"
-       return 0
-   fi
+    # Skip if symlink already points to correct location
+    if [[ -L "$dest" ]] && [[ "$(readlink "$dest")" == "$src" ]]; then
+        echo "  ✓ $dest"
+        return 0
+    fi
 
-   # Backup existing file/symlink if it exists
-   if [[ -e "$dest" || -L "$dest" ]]; then
-       mkdir -p "$BACKUP_DIR"
-       local backup_name="$(basename "$dest").$(date +%Y%m%d_%H%M%S)"
-       mv "$dest" "$BACKUP_DIR/$backup_name"
-       echo "Backed up $dest to $BACKUP_DIR/$backup_name"
-   fi
+    # Backup existing file/symlink
+    if [[ -e "$dest" || -L "$dest" ]]; then
+        mkdir -p "$BACKUP_DIR"
+        local backup_name
+        backup_name="$(basename "$dest").$(date +%Y%m%d_%H%M%S)"
+        mv "$dest" "$BACKUP_DIR/$backup_name"
+        echo "  ⚠ Backed up: $dest"
+    fi
 
-   mkdir -p "$(dirname "$dest")"
-   ln -s "$src" "$dest"
-   echo "Linked $src -> $dest"
+    mkdir -p "$(dirname "$dest")"
+    ln -s "$src" "$dest"
+    echo "  → $dest"
 }
 
+echo "Setting up dotfiles for $OS..."
 
-main() {
-   echo "🤖 Setting up dotfiles..."
-   setup_environment
+# Shared symlinks
+link_file "shared/git/gitconfig"  "$HOME/.gitconfig"
+link_file "shared/tmux/tmux.conf" "$HOME/.tmux.conf"
+link_file "shared/nvim"           "$HOME/.config/nvim"
+link_file "shared/pgcli"          "$HOME/.config/pgcli"
 
-   echo "🤖 Creating symlinks..."
-   local symlinks=($(get_symlinks))
-   for ((i=1; i <= ${#symlinks}; i+=2)); do
-       link_file "${symlinks[i]}" "${symlinks[i+1]}"
-   done
+# OS-specific symlinks
+case "$OS" in
+    macos)
+        link_file "macos/zshrc"   "$HOME/.zshrc"
+        link_file "macos/ghostty" "$HOME/.config/ghostty"
+        ;;
+    linux)
+        link_file "linux/zshrc"   "$HOME/.zshrc"
+        ;;
+esac
 
-   echo "✅ Dotfiles installation complete!"
-}
-
-main
+echo "Done!"

@@ -62,7 +62,9 @@ This means you can edit files in the `dotfiles` directory, commit changes, and t
 For machine-specific configurations that shouldn't be version controlled:
 
 ### Shell Configuration (`.zshrc.local`)
+
 Create `~/.zshrc.local` to add machine-specific settings:
+
 ```bash
 # Example ~/.zshrc.local
 export PATH="/custom/path:$PATH"
@@ -72,14 +74,18 @@ alias work="cd ~/my-work-dir"
 This file is automatically sourced at the end of your shell configuration.
 
 ### Tmux Projects (`.tmux-projects.conf`)
+
 Create `~/.tmux-projects.conf` to customize project directories for tmux session management:
+
 ```bash
 # Example ~/.tmux-projects.conf
 export TMUX_PROJECT_DIRS="~/projects ~/work ~/dev"
 ```
 
 ### Git Configuration
+
 To override the git user email/name for specific machines, use `.zshrc.local`:
+
 ```bash
 git config --global user.email "your.email@example.com"
 git config --global user.name "Your Name"
