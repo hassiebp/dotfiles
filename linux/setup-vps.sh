@@ -240,16 +240,38 @@ download_file() {
   sc_retry "$SC_RETRY_ATTEMPTS" "$SC_RETRY_DELAY_SECONDS" sc_run_sudo curl -fL "$url" -o "$dest"
 }
 
+download_neovim_checksum_file() {
+  local base_url="$1"
+  local dest="$2"
+  local candidates=(
+    "sha256sum.txt"
+    "SHA256SUMS"
+    "checksums.txt"
+    "sha256sums.txt"
+  )
+
+  local candidate
+  for candidate in "${candidates[@]}"; do
+    if sc_run_sudo curl -fsL "$base_url/$candidate" -o "$dest"; then
+      sc_info "Using Neovim checksum file: $candidate"
+      return 0
+    fi
+  done
+
+  sc_die "Could not download Neovim checksum file from $base_url (tried: ${candidates[*]})."
+}
+
 verify_neovim_archive() {
   local archive="$1"
   local sha_file="$2"
   local asset_name="$3"
 
   local expected actual
-  expected="$(awk -v asset="$asset_name" '$0 ~ asset {print $1; exit}' "$sha_file")"
+  expected="$(grep -F "$asset_name" "$sha_file" | head -n1 | grep -Eo '[0-9a-fA-F]{64}' | head -n1 || true)"
+  expected="$(printf '%s' "$expected" | tr '[:upper:]' '[:lower:]')"
   [[ -n "$expected" ]] || sc_die "Could not find checksum for $asset_name"
 
-  actual="$(sha256sum "$archive" | awk '{print $1}')"
+  actual="$(sha256sum "$archive" | awk '{print tolower($1)}')"
   [[ "$actual" == "$expected" ]] || sc_die "Checksum mismatch for Neovim archive"
 }
 
@@ -499,10 +521,10 @@ phase_packages() {
     nvim_tmp_dir="$(mktemp -d)"
     sc_register_tmp_path "$nvim_tmp_dir"
     archive="$nvim_tmp_dir/$asset"
-    checksum="$nvim_tmp_dir/$asset.sha256sum"
+    checksum="$nvim_tmp_dir/neovim-checksums.txt"
 
     download_file "$base_url/$asset" "$archive"
-    download_file "$base_url/$asset.sha256sum" "$checksum"
+    download_neovim_checksum_file "$base_url" "$checksum"
     verify_neovim_archive "$archive" "$checksum" "$asset"
 
     sc_run_sudo rm -rf /opt/nvim
