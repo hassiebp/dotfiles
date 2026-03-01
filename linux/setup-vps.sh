@@ -431,8 +431,17 @@ phase_firewall() {
 
   apt_install ufw
 
-  local current_port="22"
-  current_port="$(sc_run_sudo sshd -T 2>/dev/null | awk '/^port /{print $2; exit}' || echo 22)"
+  local detected_port current_port
+  detected_port="$(sc_run_sudo sshd -T 2>/dev/null | awk '/^port[[:space:]]+[0-9]+$/{print $2; exit}' || true)"
+
+  if validate_port "${detected_port:-}"; then
+    current_port="$detected_port"
+  else
+    current_port="22"
+    sc_warn "Could not detect current sshd port from 'sshd -T'; falling back to port 22 for temporary firewall allow."
+  fi
+
+  validate_port "$SSH_PORT" || sc_die "Invalid configured SSH port '$SSH_PORT' for UFW rules."
 
   sc_run_sudo ufw default deny incoming
   sc_run_sudo ufw default allow outgoing
