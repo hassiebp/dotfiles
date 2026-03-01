@@ -152,7 +152,7 @@ detect_server_address() {
 }
 
 prompt_for_local_key_copy_if_missing() {
-  [[ -n "$SSH_KEY_FILE" ]] || return
+  [[ -n "$SSH_KEY_FILE" ]] || return 0
   [[ -f "$SSH_KEY_FILE" ]] && return
 
   detect_server_address
