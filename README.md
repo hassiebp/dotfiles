@@ -93,7 +93,7 @@ cd ~/dotfiles
 ./linux/setup-langfuse-agent.sh \
   --username hassieb \
   --workspace-dir ~/langfuse \
-  --git-email hasibspot@placeholder.invalid \
+  --git-email 264775091+hassiebbot@users.noreply.github.com \
   --yes \
   --run-main-dx
 ```

@@ -44,9 +44,9 @@ PYTHON_VERSION_PREFIX="${LANGFUSE_PYTHON_PREFIX:-3.14}"
 PINNED_PYTHON_VERSION="${LANGFUSE_PINNED_PYTHON_VERSION:-3.14.0}"
 MIGRATE_VERSION="${LANGFUSE_MIGRATE_VERSION:-v4.18.3}"
 
-GIT_NAME="${LANGFUSE_GIT_NAME:-hasibspot}"
-GIT_EMAIL="${LANGFUSE_GIT_EMAIL:-hasibspot@placeholder.invalid}"
-GITHUB_USER="${LANGFUSE_GITHUB_USER:-hasibspot}"
+GIT_NAME="${LANGFUSE_GIT_NAME:-hassiebbot}"
+GIT_EMAIL="${LANGFUSE_GIT_EMAIL:-264775091+hassiebbot@users.noreply.github.com}"
+GITHUB_USER="${LANGFUSE_GITHUB_USER:-hassiebbot}"
 GITHUB_HOST="${LANGFUSE_GITHUB_HOST:-github.com}"
 GH_AUTH_TOKEN="${LANGFUSE_GITHUB_TOKEN:-${GH_TOKEN:-${GITHUB_TOKEN:-}}}"
 GH_AUTH_TOKEN_FILE="${LANGFUSE_GITHUB_TOKEN_FILE:-}"
@@ -365,7 +365,7 @@ phase_python_tooling() {
 
 phase_git_identity() {
   local include_file workspace_gitdir include_key tmp_include
-  include_file="$TARGET_HOME/.gitconfig-hasibspot"
+  include_file="$TARGET_HOME/.gitconfig-hassiebbot"
   workspace_gitdir="${WORKSPACE_DIR%/}/"
   include_key="includeIf.gitdir:${workspace_gitdir}.path"
   tmp_include="$(mktemp)"
