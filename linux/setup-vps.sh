@@ -58,6 +58,19 @@ MIN_NEOVIM_VERSION="${VPS_MIN_NEOVIM_VERSION:-0.11.0}"
 PINNED_NEOVIM_TAG="${VPS_PINNED_NEOVIM_TAG:-v0.11.0}"
 OH_MY_ZSH_REF="${VPS_OH_MY_ZSH_REF:-master}"
 
+parse_package_list() {
+  local raw="$1"
+  local -n out_ref="$2"
+  out_ref=()
+
+  sc_parse_csv_to_array "$raw" out_ref
+
+  # Backward compatibility: accept whitespace-separated package lists.
+  if ((${#out_ref[@]} == 1)) && [[ "${out_ref[0]}" == *" "* ]]; then
+    read -r -a out_ref <<< "${out_ref[0]}"
+  fi
+}
+
 DEFAULT_PACKAGES=()
 parse_package_list "${VPS_DEFAULT_PACKAGES:-zsh,git,curl,tmux,ripgrep,fd-find,bat,fzf,zoxide,htop}" DEFAULT_PACKAGES
 INSTALL_PACKAGES=()
@@ -127,19 +140,6 @@ validate_port() {
   local port="$1"
   [[ "$port" =~ ^[0-9]+$ ]] || return 1
   ((port >= 1 && port <= 65535))
-}
-
-parse_package_list() {
-  local raw="$1"
-  local -n out_ref="$2"
-  out_ref=()
-
-  sc_parse_csv_to_array "$raw" out_ref
-
-  # Backward compatibility: accept whitespace-separated package lists.
-  if ((${#out_ref[@]} == 1)) && [[ "${out_ref[0]}" == *" "* ]]; then
-    read -r -a out_ref <<< "${out_ref[0]}"
-  fi
 }
 
 resolve_target_home() {
