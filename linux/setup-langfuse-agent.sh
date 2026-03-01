@@ -43,6 +43,7 @@ PNPM_VERSION="${LANGFUSE_PNPM_VERSION:-9.5.0}"
 PYTHON_VERSION_PREFIX="${LANGFUSE_PYTHON_PREFIX:-3.14}"
 PINNED_PYTHON_VERSION="${LANGFUSE_PINNED_PYTHON_VERSION:-3.14.0}"
 MIGRATE_VERSION="${LANGFUSE_MIGRATE_VERSION:-v4.18.3}"
+MIGRATE_BUILD_TAGS="${LANGFUSE_MIGRATE_BUILD_TAGS:-clickhouse}"
 
 GIT_NAME="${LANGFUSE_GIT_NAME:-hassiebbot}"
 GIT_EMAIL="${LANGFUSE_GIT_EMAIL:-264775091+hassiebbot@users.noreply.github.com}"
@@ -252,6 +253,7 @@ phase_precheck() {
   sc_info "  node_version=$NODE_VERSION"
   sc_info "  pnpm_version=$PNPM_VERSION"
   sc_info "  python_prefix=$PYTHON_VERSION_PREFIX"
+  sc_info "  migrate_tags=$MIGRATE_BUILD_TAGS"
   sc_info "  github_host=$GITHUB_HOST"
   sc_info "  run_main_dx=$RUN_MAIN_DX"
   sc_info "  log_file=$SC_LOG_FILE"
@@ -272,13 +274,17 @@ phase_system_packages() {
     sc_warn "Could not install clickhouse-client from apt. Install manually if needed."
   fi
 
+  local migrate_ref migrate_target q_migrate_target q_migrate_tags
   if [[ "$SC_MODE" == "latest" ]]; then
-    run_with_user_env "if ! command -v migrate >/dev/null 2>&1; then GOBIN=\"\$HOME/.local/bin\" go install github.com/golang-migrate/migrate/v4/cmd/migrate@latest; fi"
+    migrate_ref="latest"
   else
-    local q_migrate_version
-    q_migrate_version="$(sc_quote "$MIGRATE_VERSION")"
-    run_with_user_env "if ! command -v migrate >/dev/null 2>&1; then GOBIN=\"\$HOME/.local/bin\" go install github.com/golang-migrate/migrate/v4/cmd/migrate@$q_migrate_version; fi"
+    migrate_ref="$MIGRATE_VERSION"
   fi
+
+  migrate_target="github.com/golang-migrate/migrate/v4/cmd/migrate@$migrate_ref"
+  q_migrate_target="$(sc_quote "$migrate_target")"
+  q_migrate_tags="$(sc_quote "$MIGRATE_BUILD_TAGS")"
+  run_with_user_env "GOBIN=\"\$HOME/.local/bin\" go install -tags $q_migrate_tags $q_migrate_target"
 }
 
 phase_github_cli() {
