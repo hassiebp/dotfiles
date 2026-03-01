@@ -252,13 +252,13 @@ download_neovim_checksum_file() {
 
   local candidate
   for candidate in "${candidates[@]}"; do
-    if sc_run_sudo curl -fsL "$base_url/$candidate" -o "$dest"; then
+    if sc_retry "$SC_RETRY_ATTEMPTS" "$SC_RETRY_DELAY_SECONDS" sc_run_sudo curl -fsL "$base_url/$candidate" -o "$dest"; then
       sc_info "Using Neovim checksum file: $candidate"
       return 0
     fi
   done
 
-  sc_die "Could not download Neovim checksum file from $base_url (tried: ${candidates[*]})."
+  return 1
 }
 
 verify_neovim_archive() {
@@ -524,8 +524,13 @@ phase_packages() {
     checksum="$nvim_tmp_dir/neovim-checksums.txt"
 
     download_file "$base_url/$asset" "$archive"
-    download_neovim_checksum_file "$base_url" "$checksum"
-    verify_neovim_archive "$archive" "$checksum" "$asset"
+    if download_neovim_checksum_file "$base_url" "$checksum"; then
+      verify_neovim_archive "$archive" "$checksum" "$asset"
+    elif [[ "$SC_MODE" == "frozen" ]]; then
+      sc_die "Could not download Neovim checksum file from $base_url (tried known checksum names)."
+    else
+      sc_warn "Could not download Neovim checksum file from $base_url. Continuing in latest mode without checksum verification."
+    fi
 
     sc_run_sudo rm -rf /opt/nvim
     sc_run_sudo install -d -m 755 /opt/nvim
