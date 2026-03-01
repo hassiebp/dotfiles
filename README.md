@@ -25,7 +25,110 @@ cd ~/dotfiles
 ./install.sh
 ```
 
-The script will:
+### Ubuntu VPS Bootstrap
+
+For a fresh Ubuntu VPS, use the bootstrap script to harden SSH/firewall, set up your user, install tools, and verify health checks.
+
+> Note: setup scripts require Bash 5+ (standard on modern Ubuntu).
+
+```bash
+cd ~/dotfiles
+./linux/setup-vps.sh \
+  --username hassieb \
+  --ssh-key-file /tmp/mykey.pub \
+  --ssh-port 22 \
+  --yes
+```
+
+If the remote key file does not exist yet, the script pauses and asks you to run this from your local machine, then confirm:
+
+```bash
+scp ~/.ssh/id_ed25519.pub root@<server-ip>:/tmp/mykey.pub
+```
+
+Then continue in the same server terminal by typing `yes` when prompted.  
+For a fully non-interactive run, copy the key first and then run:
+
+```bash
+./linux/setup-vps.sh \
+  --username hassieb \
+  --ssh-key-file /tmp/mykey.pub \
+  --ssh-port 22 \
+  --yes
+```
+
+Default behavior:
+
+- Creates the target user (if missing) and adds it to `sudo`
+- Adds your SSH public key to `~/.ssh/authorized_keys`
+- Configures SSH to use port `22`, disable root login, and disable password auth
+- Enables UFW (`deny incoming`, `allow outgoing`, `allow 22/tcp`)
+- Enables unattended security upgrades
+- Installs core CLI tooling (`zsh`, `bat`, `fd-find`, `ripgrep`, `fzf`, `zoxide`, `tmux`, `eza`/`exa`, etc.)
+- Installs Neovim from official release tarballs with checksum verification (minimum `0.11.0`)
+- Installs Oh My Zsh via git clone and sets `zsh` as default shell
+- Runs `./install.sh` for dotfile symlinks when available to the target user
+- Runs a final `verify` phase to report service/tool status
+
+Useful flags:
+
+- `--mode latest|frozen` latest updates vs reproducible frozen behavior
+- `--dry-run` preview actions without changing the machine
+- `--only precheck,system,packages` run selected phases only
+- `--skip dotfiles` skip specific phases
+- `--dotfiles-repo <url>` clone/pull dotfiles for the target user before running `install.sh`
+- `--state-dir`, `--no-state`, `--force`, `--reset-state` control phase state markers
+- `--local-key-path`, `--bootstrap-user`, `--server-address` customize the printed local `scp` hint
+
+Config defaults live in:
+
+- `linux/config/vps.env`
+
+### Langfuse Agent Setup
+
+For Langfuse engineering setup on a new Ubuntu VPS, use the dedicated script:
+
+```bash
+cd ~/dotfiles
+./linux/setup-langfuse-agent.sh \
+  --username hassieb \
+  --workspace-dir ~/langfuse \
+  --git-email hasibspot@placeholder.invalid \
+  --yes \
+  --run-main-dx
+```
+
+Default behavior:
+
+- Clones/updates `langfuse`, `langfuse-python`, `langfuse-js`, `langfuse-docs`
+- Installs shared prerequisites (Docker, build deps, migrate CLI, clickhouse client)
+- Installs a single enforced toolchain for all repos: Node `24`, pnpm `9.5.0`
+- Installs Python via `pyenv` (`3.14.x`) and Poetry
+- Applies repo-specific setup steps from local contribution docs
+- Configures scoped Git identity for the Langfuse workspace via `includeIf`
+- Installs GitHub CLI (`gh`) and authenticates it for the target user
+- Runs a final `verify` phase with version/repo checks
+
+Useful flags:
+
+- `--mode latest|frozen`
+- `--run-main-dx` run `pnpm run dx` in main Langfuse repo
+- `--github-host`, `--github-token`, `--github-token-file` control `gh` auth target and credentials
+- `--only ...` / `--skip ...` phase targeting
+- `--state-dir`, `--no-state`, `--force`, `--reset-state`
+
+`gh` authentication token sources (priority order):
+- `--github-token`
+- `--github-token-file`
+- `GH_TOKEN` / `GITHUB_TOKEN` environment variables
+
+If no token source is provided, the script prompts interactively unless `--yes` is set.
+
+Config defaults live in:
+
+- `linux/config/langfuse-agent.env`
+
+The base dotfiles installer will:
 
 - Detect your OS (macOS or Linux) and configure accordingly
 - Back up any existing dotfiles to `~/.dotfiles_backup` with timestamps
