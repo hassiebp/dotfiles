@@ -45,6 +45,7 @@ PINNED_PYTHON_VERSION="${LANGFUSE_PINNED_PYTHON_VERSION:-3.14.0}"
 MIGRATE_VERSION="${LANGFUSE_MIGRATE_VERSION:-v4.18.3}"
 MIGRATE_BUILD_TAGS="${LANGFUSE_MIGRATE_BUILD_TAGS:-clickhouse}"
 GO_MIN_TOOLCHAIN="${LANGFUSE_GO_MIN_TOOLCHAIN:-1.24.0}"
+CLICKHOUSE_APT_CHANNEL="${LANGFUSE_CLICKHOUSE_APT_CHANNEL:-stable}"
 
 GIT_NAME="${LANGFUSE_GIT_NAME:-hassiebbot}"
 GIT_EMAIL="${LANGFUSE_GIT_EMAIL:-264775091+hassiebbot@users.noreply.github.com}"
@@ -228,6 +229,7 @@ phase_precheck() {
   [[ -n "$GIT_EMAIL" ]] || sc_die "--git-email cannot be empty"
   [[ "$PYTHON_VERSION_PREFIX" =~ ^[0-9]+\.[0-9]+$ ]] || sc_die "--python-version-prefix must be in X.Y format"
   [[ "$GO_MIN_TOOLCHAIN" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || sc_die "--go-min-toolchain must be X.Y or X.Y.Z format"
+  [[ "$CLICKHOUSE_APT_CHANNEL" == "stable" || "$CLICKHOUSE_APT_CHANNEL" == "lts" ]] || sc_die "--clickhouse-apt-channel must be stable or lts"
   [[ -n "$GITHUB_HOST" ]] || sc_die "--github-host cannot be empty"
 
   if ! id -u "$TARGET_USER" >/dev/null 2>&1; then
@@ -257,6 +259,7 @@ phase_precheck() {
   sc_info "  python_prefix=$PYTHON_VERSION_PREFIX"
   sc_info "  migrate_tags=$MIGRATE_BUILD_TAGS"
   sc_info "  go_min_toolchain=$GO_MIN_TOOLCHAIN"
+  sc_info "  clickhouse_apt_channel=$CLICKHOUSE_APT_CHANNEL"
   sc_info "  github_host=$GITHUB_HOST"
   sc_info "  run_main_dx=$RUN_MAIN_DX"
   sc_info "  log_file=$SC_LOG_FILE"
@@ -268,13 +271,35 @@ phase_precheck() {
 phase_system_packages() {
   apt_update
   apt_install \
-    git curl ca-certificates gnupg lsb-release software-properties-common \
+    git curl ca-certificates gnupg apt-transport-https lsb-release software-properties-common \
     build-essential pkg-config make unzip zip jq pipx golang-go \
     libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev llvm \
     libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
   if ! apt_install clickhouse-client; then
-    sc_warn "Could not install clickhouse-client from apt. Install manually if needed."
+    sc_warn "Could not install clickhouse-client from default apt sources. Trying official ClickHouse repository."
+
+    local clickhouse_key_url clickhouse_keyring clickhouse_repo_file arch repo_line tmp_key tmp_repo
+    clickhouse_key_url="https://packages.clickhouse.com/rpm/lts/repodata/repomd.xml.key"
+    clickhouse_keyring="/usr/share/keyrings/clickhouse-keyring.gpg"
+    clickhouse_repo_file="/etc/apt/sources.list.d/clickhouse.list"
+    arch="$(dpkg --print-architecture)"
+    repo_line="deb [signed-by=${clickhouse_keyring} arch=${arch}] https://packages.clickhouse.com/deb ${CLICKHOUSE_APT_CHANNEL} main"
+
+    tmp_key="$(mktemp)"
+    tmp_repo="$(mktemp)"
+    sc_register_tmp_path "$tmp_key"
+    sc_register_tmp_path "$tmp_repo"
+
+    sc_run_sudo install -d -m 0755 /usr/share/keyrings
+    sc_retry "$SC_RETRY_ATTEMPTS" "$SC_RETRY_DELAY_SECONDS" sc_run_sudo curl -fsSL "$clickhouse_key_url" -o "$tmp_key"
+    sc_run_sudo gpg --dearmor --yes -o "$clickhouse_keyring" "$tmp_key"
+
+    printf '%s\n' "$repo_line" > "$tmp_repo"
+    sc_run_sudo install -m 644 "$tmp_repo" "$clickhouse_repo_file"
+
+    apt_update
+    apt_install clickhouse-client || sc_die "Could not install clickhouse-client from official ClickHouse repository."
   fi
 
   if ! command -v clickhouse >/dev/null 2>&1; then
