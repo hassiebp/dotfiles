@@ -277,6 +277,22 @@ phase_system_packages() {
     sc_warn "Could not install clickhouse-client from apt. Install manually if needed."
   fi
 
+  if ! command -v clickhouse >/dev/null 2>&1; then
+    local clickhouse_client_bin
+    clickhouse_client_bin="$(command -v clickhouse-client || true)"
+    if [[ -n "$clickhouse_client_bin" ]]; then
+      sc_run_sudo install -d -m 755 /usr/local/bin
+      sc_run_sudo ln -sfn "$clickhouse_client_bin" /usr/local/bin/clickhouse
+      sc_info "Created clickhouse shim at /usr/local/bin/clickhouse -> $clickhouse_client_bin"
+    fi
+  fi
+
+  local normalized_migrate_tags
+  normalized_migrate_tags=",${MIGRATE_BUILD_TAGS// /,},"
+  if [[ "$normalized_migrate_tags" == *",clickhouse,"* ]] && ! command -v clickhouse >/dev/null 2>&1; then
+    sc_die "ClickHouse CLI is required for migrate tag 'clickhouse'. Install clickhouse client tools so 'clickhouse' is on PATH."
+  fi
+
   local migrate_ref migrate_target q_migrate_target q_migrate_tags gotoolchain_value q_gotoolchain
   if [[ "$SC_MODE" == "latest" ]]; then
     migrate_ref="latest"
