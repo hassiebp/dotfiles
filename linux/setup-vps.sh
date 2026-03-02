@@ -616,9 +616,37 @@ phase_dotfiles() {
   fi
 
   if sc_run_as_user_cmd "$TARGET_USER" test -x "$install_dir/install.sh"; then
-    local q_install_dir
+    local q_install_dir tpm_dir q_tpm_dir q_install_plugins_cmd q_update_plugins_cmd
     q_install_dir="$(sc_quote "$install_dir")"
     sc_run_as_user "$TARGET_USER" "cd $q_install_dir && ./install.sh"
+
+    if command -v tmux >/dev/null 2>&1; then
+      tpm_dir="$TARGET_HOME/.tmux/plugins/tpm"
+      q_tpm_dir="$(sc_quote "$tpm_dir")"
+
+      if sc_run_as_user_cmd "$TARGET_USER" test -d "$tpm_dir/.git"; then
+        if [[ "$SC_MODE" == "latest" ]]; then
+          if ! sc_retry "$SC_RETRY_ATTEMPTS" "$SC_RETRY_DELAY_SECONDS" sc_run_as_user_cmd "$TARGET_USER" git -C "$tpm_dir" pull --ff-only; then
+            sc_warn "Could not update TPM at $tpm_dir. Continuing with existing checkout."
+          fi
+        fi
+      else
+        sc_retry "$SC_RETRY_ATTEMPTS" "$SC_RETRY_DELAY_SECONDS" sc_run_as_user_cmd "$TARGET_USER" mkdir -p "$TARGET_HOME/.tmux/plugins"
+        sc_retry "$SC_RETRY_ATTEMPTS" "$SC_RETRY_DELAY_SECONDS" sc_run_as_user_cmd "$TARGET_USER" git clone https://github.com/tmux-plugins/tpm "$tpm_dir"
+      fi
+
+      q_install_plugins_cmd="$(sc_quote "$tpm_dir/bin/install_plugins")"
+      if sc_run_as_user_cmd "$TARGET_USER" test -x "$tpm_dir/bin/install_plugins"; then
+        sc_run_as_user "$TARGET_USER" "TMUX_PLUGIN_MANAGER_PATH=\"\$HOME/.tmux/plugins\" $q_install_plugins_cmd >/dev/null 2>&1 || true"
+      fi
+
+      if [[ "$SC_MODE" == "latest" ]] && sc_run_as_user_cmd "$TARGET_USER" test -x "$tpm_dir/bin/update_plugins"; then
+        q_update_plugins_cmd="$(sc_quote "$tpm_dir/bin/update_plugins")"
+        sc_run_as_user "$TARGET_USER" "TMUX_PLUGIN_MANAGER_PATH=\"\$HOME/.tmux/plugins\" $q_update_plugins_cmd all >/dev/null 2>&1 || true"
+      fi
+    else
+      sc_warn "tmux is not installed; skipping TPM bootstrap."
+    fi
   else
     sc_warn "Skipping dotfiles: '$install_dir/install.sh' not executable for '$TARGET_USER'"
   fi
