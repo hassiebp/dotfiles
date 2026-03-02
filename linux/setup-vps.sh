@@ -53,6 +53,7 @@ WITH_FAIL2BAN="${VPS_USE_FAIL2BAN:-0}"
 DISABLE_ROOT_SSH="${VPS_DISABLE_ROOT_SSH:-1}"
 DISABLE_PASSWORD_AUTH="${VPS_DISABLE_PASSWORD_AUTH:-1}"
 RUN_DOTFILES="${VPS_RUN_DOTFILES:-1}"
+TMUX_SERVER_PREFIX="${VPS_TMUX_SERVER_PREFIX:-C-e}"
 
 MIN_NEOVIM_VERSION="${VPS_MIN_NEOVIM_VERSION:-0.11.0}"
 PINNED_NEOVIM_TAG="${VPS_PINNED_NEOVIM_TAG:-v0.11.0}"
@@ -112,6 +113,7 @@ Setup options:
   --timezone TZ                   Set timezone (e.g. UTC, Europe/Berlin)
   --install-packages CSV          Override package list (comma-separated)
   --dotfiles-repo URL             Clone/pull repo for target user, then run install.sh
+  --tmux-prefix KEY               tmux prefix for server user local override (default: $TMUX_SERVER_PREFIX)
   --no-dotfiles                   Skip dotfiles phase
   --without-ufw                   Skip UFW setup
   --without-unattended-upgrades   Skip unattended security upgrades
@@ -310,6 +312,7 @@ phase_precheck() {
   fi
 
   validate_port "$SSH_PORT" || sc_die "Invalid --ssh-port '$SSH_PORT'."
+  [[ -n "$TMUX_SERVER_PREFIX" ]] || sc_die "--tmux-prefix cannot be empty."
 
   prompt_for_local_key_copy_if_missing
   load_ssh_keys
@@ -318,6 +321,7 @@ phase_precheck() {
   sc_info "  mode=$SC_MODE"
   sc_info "  user=$TARGET_USER"
   sc_info "  ssh_port=$SSH_PORT"
+  sc_info "  tmux_prefix=$TMUX_SERVER_PREFIX"
   sc_info "  dry_run=$SC_DRY_RUN"
   sc_info "  log_file=$SC_LOG_FILE"
   sc_info "  state_dir=$SC_STATE_DIR"
@@ -617,10 +621,35 @@ phase_dotfiles() {
 
   if sc_run_as_user_cmd "$TARGET_USER" test -x "$install_dir/install.sh"; then
     local q_install_dir tpm_dir q_tpm_dir q_install_plugins_cmd q_update_plugins_cmd
+    local tmux_local_conf tmux_override_tmp q_tmux_prefix manage_tmux_local
     q_install_dir="$(sc_quote "$install_dir")"
     sc_run_as_user "$TARGET_USER" "cd $q_install_dir && ./install.sh"
 
     if command -v tmux >/dev/null 2>&1; then
+      tmux_local_conf="$TARGET_HOME/.tmux.conf.local"
+      manage_tmux_local=0
+      if ! sc_run_as_user_cmd "$TARGET_USER" test -f "$tmux_local_conf"; then
+        manage_tmux_local=1
+      elif sc_run_as_user_cmd "$TARGET_USER" grep -Fq "# Managed by setup-vps.sh (tmux-prefix)" "$tmux_local_conf"; then
+        manage_tmux_local=1
+      else
+        sc_info "Keeping existing $tmux_local_conf (unmanaged)."
+      fi
+
+      if ((manage_tmux_local)); then
+        tmux_override_tmp="$(mktemp)"
+        sc_register_tmp_path "$tmux_override_tmp"
+        q_tmux_prefix="$(printf '%s' "$TMUX_SERVER_PREFIX")"
+        {
+          printf '%s\n' "# Managed by setup-vps.sh (tmux-prefix)"
+          printf '%s\n' "unbind C-a"
+          printf 'set -g prefix %s\n' "$q_tmux_prefix"
+          printf 'bind %s send-prefix\n' "$q_tmux_prefix"
+        } > "$tmux_override_tmp"
+        sc_run_sudo install -m 644 -o "$TARGET_USER" -g "$TARGET_USER" "$tmux_override_tmp" "$tmux_local_conf"
+        sc_info "Set tmux server prefix override to '$TMUX_SERVER_PREFIX' in $tmux_local_conf"
+      fi
+
       tpm_dir="$TARGET_HOME/.tmux/plugins/tpm"
       q_tpm_dir="$(sc_quote "$tpm_dir")"
 
@@ -747,6 +776,10 @@ parse_args() {
         ;;
       --timezone)
         TIMEZONE="${2:-}"
+        shift 2
+        ;;
+      --tmux-prefix)
+        TMUX_SERVER_PREFIX="${2:-}"
         shift 2
         ;;
       --install-packages)
