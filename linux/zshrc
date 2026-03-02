@@ -4,6 +4,10 @@ ZSH_THEME="gentoo"
 plugins=(git)
 source $ZSH/oh-my-zsh.sh
 
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
+
 # Source common configurations
 source "$HOME/dotfiles/shared/zsh/common"
 

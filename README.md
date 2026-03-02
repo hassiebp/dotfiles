@@ -101,7 +101,7 @@ cd ~/dotfiles
 Default behavior:
 
 - Clones/updates `langfuse`, `langfuse-python`, `langfuse-js`, `langfuse-docs`
-- Installs shared prerequisites (Docker, build deps, migrate CLI, clickhouse client)
+- Installs shared prerequisites (Docker, build deps, migrate CLI, clickhouse client, Claude Code, lazygit, difftastic, zoxide)
 - Installs a single enforced toolchain for all repos: Node `24`, pnpm `9.5.0`
 - Installs Python via `pyenv` (`3.14.x`) and Poetry
 - Applies repo-specific setup steps from local contribution docs

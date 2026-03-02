@@ -46,6 +46,10 @@ MIGRATE_VERSION="${LANGFUSE_MIGRATE_VERSION:-v4.18.3}"
 MIGRATE_BUILD_TAGS="${LANGFUSE_MIGRATE_BUILD_TAGS:-clickhouse}"
 GO_MIN_TOOLCHAIN="${LANGFUSE_GO_MIN_TOOLCHAIN:-1.24.0}"
 CLICKHOUSE_APT_CHANNEL="${LANGFUSE_CLICKHOUSE_APT_CHANNEL:-stable}"
+INSTALL_CLAUDE_CODE="${LANGFUSE_INSTALL_CLAUDE_CODE:-1}"
+INSTALL_LAZYGIT="${LANGFUSE_INSTALL_LAZYGIT:-1}"
+INSTALL_DIFFTASTIC="${LANGFUSE_INSTALL_DIFFTASTIC:-1}"
+INSTALL_ZOXIDE="${LANGFUSE_INSTALL_ZOXIDE:-1}"
 
 GIT_NAME="${LANGFUSE_GIT_NAME:-hassiebbot}"
 GIT_EMAIL="${LANGFUSE_GIT_EMAIL:-264775091+hassiebbot@users.noreply.github.com}"
@@ -147,6 +151,30 @@ apt_install() {
   local pkgs=("$@")
   ((${#pkgs[@]} > 0)) || return
   sc_retry "$SC_RETRY_ATTEMPTS" "$SC_RETRY_DELAY_SECONDS" apt_install_cmd "${pkgs[@]}"
+}
+
+install_difftastic_from_release() {
+  local arch asset_name url tmp_dir archive
+
+  arch="$(dpkg --print-architecture)"
+  case "$arch" in
+    amd64) asset_name="difft-x86_64-unknown-linux-gnu.tar.gz" ;;
+    arm64) asset_name="difft-aarch64-unknown-linux-gnu.tar.gz" ;;
+    *)
+      sc_warn "Unsupported architecture '$arch' for difftastic release fallback."
+      return 1
+      ;;
+  esac
+
+  url="https://github.com/Wilfred/difftastic/releases/latest/download/${asset_name}"
+  tmp_dir="$(mktemp -d)"
+  sc_register_tmp_path "$tmp_dir"
+  archive="$tmp_dir/$asset_name"
+
+  sc_retry "$SC_RETRY_ATTEMPTS" "$SC_RETRY_DELAY_SECONDS" sc_run_sudo curl -fsSL "$url" -o "$archive" || return 1
+  sc_run_sudo tar -xzf "$archive" -C "$tmp_dir" || return 1
+  [[ -f "$tmp_dir/difft" ]] || return 1
+  sc_run_sudo install -m 0755 "$tmp_dir/difft" /usr/local/bin/difft
 }
 
 clone_or_update_repo() {
@@ -260,6 +288,10 @@ phase_precheck() {
   sc_info "  migrate_tags=$MIGRATE_BUILD_TAGS"
   sc_info "  go_min_toolchain=$GO_MIN_TOOLCHAIN"
   sc_info "  clickhouse_apt_channel=$CLICKHOUSE_APT_CHANNEL"
+  sc_info "  install_claude_code=$INSTALL_CLAUDE_CODE"
+  sc_info "  install_lazygit=$INSTALL_LAZYGIT"
+  sc_info "  install_difftastic=$INSTALL_DIFFTASTIC"
+  sc_info "  install_zoxide=$INSTALL_ZOXIDE"
   sc_info "  github_host=$GITHUB_HOST"
   sc_info "  run_main_dx=$RUN_MAIN_DX"
   sc_info "  log_file=$SC_LOG_FILE"
@@ -273,8 +305,28 @@ phase_system_packages() {
   apt_install \
     git curl ca-certificates gnupg apt-transport-https lsb-release software-properties-common \
     build-essential pkg-config make unzip zip jq pipx golang-go \
-    libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev llvm \
+    libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev llvm tar \
     libncursesw5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
+
+  if ((INSTALL_ZOXIDE)); then
+    if ! apt_install zoxide; then
+      sc_warn "Could not install zoxide from apt."
+    fi
+  fi
+
+  if ((INSTALL_LAZYGIT)); then
+    if ! apt_install lazygit; then
+      sc_warn "Could not install lazygit from apt; falling back to Go install."
+      run_with_user_env "GOBIN=\"\$HOME/.local/bin\" go install github.com/jesseduffield/lazygit@latest" || sc_warn "Go fallback for lazygit failed."
+    fi
+  fi
+
+  if ((INSTALL_DIFFTASTIC)); then
+    if ! apt_install difftastic; then
+      sc_warn "Could not install difftastic from apt; falling back to GitHub release binary."
+      install_difftastic_from_release || sc_warn "difftastic fallback install failed. 'git diff' with difft external pager may fail."
+    fi
+  fi
 
   if ! apt_install clickhouse-client; then
     sc_warn "Could not install clickhouse-client from default apt sources. Trying official ClickHouse repository."
@@ -331,6 +383,10 @@ phase_system_packages() {
   q_migrate_tags="$(sc_quote "$MIGRATE_BUILD_TAGS")"
   q_gotoolchain="$(sc_quote "$gotoolchain_value")"
   run_with_user_env "GOBIN=\"\$HOME/.local/bin\" GOTOOLCHAIN=$q_gotoolchain go install -tags $q_migrate_tags $q_migrate_target"
+
+  if ((INSTALL_CLAUDE_CODE)); then
+    run_with_user_env "if ! command -v claude >/dev/null 2>&1 && ! command -v claude-code >/dev/null 2>&1; then curl -fsSL https://claude.ai/install.sh | bash; fi"
+  fi
 }
 
 phase_github_cli() {
@@ -496,12 +552,16 @@ phase_verify() {
   [[ -d "$js_repo/.git" ]] || sc_die "Missing repo: $js_repo"
   [[ -d "$docs_repo/.git" ]] || sc_die "Missing repo: $docs_repo"
 
-  local node_v pnpm_v py_v poetry_v docker_v
+  local node_v pnpm_v py_v poetry_v docker_v lazygit_v difft_v zoxide_v claude_v
   node_v="$(run_with_user_env "node -v")"
   pnpm_v="$(run_with_user_env "pnpm -v")"
   py_v="$(run_with_user_env "python -V")"
   poetry_v="$(run_with_user_env "poetry --version")"
   docker_v="$(sc_run_sudo docker compose version 2>/dev/null || true)"
+  lazygit_v="$(run_with_user_env "lazygit --version 2>/dev/null | head -n1" || true)"
+  difft_v="$(run_with_user_env "difft --version 2>/dev/null | head -n1" || true)"
+  zoxide_v="$(run_with_user_env "zoxide --version 2>/dev/null" || true)"
+  claude_v="$(run_with_user_env "claude --version 2>/dev/null || claude-code --version 2>/dev/null" || true)"
   local gh_status="not-installed"
 
   if command -v gh >/dev/null 2>&1; then
@@ -516,6 +576,10 @@ phase_verify() {
   sc_add_summary "Pnpm: $pnpm_v"
   sc_add_summary "Python: $py_v"
   sc_add_summary "Poetry: $poetry_v"
+  [[ -n "$lazygit_v" ]] && sc_add_summary "lazygit: $lazygit_v"
+  [[ -n "$difft_v" ]] && sc_add_summary "difftastic: $difft_v"
+  [[ -n "$zoxide_v" ]] && sc_add_summary "zoxide: $zoxide_v"
+  [[ -n "$claude_v" ]] && sc_add_summary "Claude Code: $claude_v"
   sc_add_summary "GitHub CLI: $gh_status"
   if [[ -n "$docker_v" ]]; then
     sc_add_summary "Docker Compose: $docker_v"
