@@ -44,6 +44,7 @@ PYTHON_VERSION_PREFIX="${LANGFUSE_PYTHON_PREFIX:-3.14}"
 PINNED_PYTHON_VERSION="${LANGFUSE_PINNED_PYTHON_VERSION:-3.14.0}"
 MIGRATE_VERSION="${LANGFUSE_MIGRATE_VERSION:-v4.18.3}"
 MIGRATE_BUILD_TAGS="${LANGFUSE_MIGRATE_BUILD_TAGS:-clickhouse}"
+GO_MIN_TOOLCHAIN="${LANGFUSE_GO_MIN_TOOLCHAIN:-1.24.0}"
 
 GIT_NAME="${LANGFUSE_GIT_NAME:-hassiebbot}"
 GIT_EMAIL="${LANGFUSE_GIT_EMAIL:-264775091+hassiebbot@users.noreply.github.com}"
@@ -226,6 +227,7 @@ phase_precheck() {
   [[ -n "$GIT_NAME" ]] || sc_die "--git-name cannot be empty"
   [[ -n "$GIT_EMAIL" ]] || sc_die "--git-email cannot be empty"
   [[ "$PYTHON_VERSION_PREFIX" =~ ^[0-9]+\.[0-9]+$ ]] || sc_die "--python-version-prefix must be in X.Y format"
+  [[ "$GO_MIN_TOOLCHAIN" =~ ^[0-9]+\.[0-9]+(\.[0-9]+)?$ ]] || sc_die "--go-min-toolchain must be X.Y or X.Y.Z format"
   [[ -n "$GITHUB_HOST" ]] || sc_die "--github-host cannot be empty"
 
   if ! id -u "$TARGET_USER" >/dev/null 2>&1; then
@@ -254,6 +256,7 @@ phase_precheck() {
   sc_info "  pnpm_version=$PNPM_VERSION"
   sc_info "  python_prefix=$PYTHON_VERSION_PREFIX"
   sc_info "  migrate_tags=$MIGRATE_BUILD_TAGS"
+  sc_info "  go_min_toolchain=$GO_MIN_TOOLCHAIN"
   sc_info "  github_host=$GITHUB_HOST"
   sc_info "  run_main_dx=$RUN_MAIN_DX"
   sc_info "  log_file=$SC_LOG_FILE"
@@ -274,7 +277,7 @@ phase_system_packages() {
     sc_warn "Could not install clickhouse-client from apt. Install manually if needed."
   fi
 
-  local migrate_ref migrate_target q_migrate_target q_migrate_tags
+  local migrate_ref migrate_target q_migrate_target q_migrate_tags gotoolchain_value q_gotoolchain
   if [[ "$SC_MODE" == "latest" ]]; then
     migrate_ref="latest"
   else
@@ -282,9 +285,11 @@ phase_system_packages() {
   fi
 
   migrate_target="github.com/golang-migrate/migrate/v4/cmd/migrate@$migrate_ref"
+  gotoolchain_value="go${GO_MIN_TOOLCHAIN}+auto"
   q_migrate_target="$(sc_quote "$migrate_target")"
   q_migrate_tags="$(sc_quote "$MIGRATE_BUILD_TAGS")"
-  run_with_user_env "GOBIN=\"\$HOME/.local/bin\" go install -tags $q_migrate_tags $q_migrate_target"
+  q_gotoolchain="$(sc_quote "$gotoolchain_value")"
+  run_with_user_env "GOBIN=\"\$HOME/.local/bin\" GOTOOLCHAIN=$q_gotoolchain go install -tags $q_migrate_tags $q_migrate_target"
 }
 
 phase_github_cli() {
