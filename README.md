@@ -1,6 +1,6 @@
 # Hassieb's dotfiles
 
-This repository contains my personal configuration files (dotfiles) for various tools and applications, such as `zsh`, `tmux`, `git`, `neovim`, and `pgcli`. These dotfiles are managed in a version-controlled repository to easily sync configurations across multiple machines.
+This repository contains my personal configuration files (dotfiles) for various tools and applications, such as `zsh`, `tmux`, `git`, `neovim`, `pgcli`, and `Claude Code`. These dotfiles are managed in a version-controlled repository to easily sync configurations across multiple machines.
 
 ## Installation
 
@@ -143,6 +143,7 @@ The base dotfiles installer will:
 - **tmux** - Terminal multiplexer configuration
 - **nvim** - Neovim configuration (LazyVim-based)
 - **pgcli** - PostgreSQL CLI with smart completion (vi mode enabled)
+- **claude** - Claude Code settings and custom status line script
 
 ### Platform-Specific
 
@@ -156,6 +157,8 @@ This dotfiles setup uses **symbolic links** to connect your version-controlled c
 ```
 ~/.gitconfig -> ~/dotfiles/shared/git/gitconfig
 ~/.tmux.conf -> ~/dotfiles/shared/tmux/tmux.conf
+~/.claude/settings.json -> ~/dotfiles/shared/claude/settings.json
+~/.claude/statusline.sh -> ~/dotfiles/shared/claude/statusline.sh
 ```
 
 This means you can edit files in the `dotfiles` directory, commit changes, and they immediately take effect in your applications.

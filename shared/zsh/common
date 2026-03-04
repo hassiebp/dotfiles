@@ -10,14 +10,12 @@ alias glop='git log --oneline --graph --decorate --date=short --pretty=format:"%
 
 gbf() {
   local branch
-  branch=$(git branch --color=always \
-    | rg -v '^\*' \
-    | sed 's/^..//' \
-    | fzf --height=42% --reverse --ansi --query="$1" \
+  branch=$(git for-each-ref --format='%(refname:short)' refs/heads \
+    | fzf --height=42% --reverse --query="$1" \
           --preview 'git log --color=always --decorate --abbrev-commit --date=short --pretty=format:"%C(auto)%h %ad %d %s" -n 10 {}' \
           --preview-window=right:62%)
 
-  [[ -n "$branch" ]] && git checkout "${branch##*/}"
+  [[ -n "$branch" ]] && git checkout -- "$branch"
 }
 
 vimf() {

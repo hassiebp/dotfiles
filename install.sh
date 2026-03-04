@@ -42,6 +42,8 @@ link_file "shared/git/gitconfig"  "$HOME/.gitconfig"
 link_file "shared/tmux/tmux.conf" "$HOME/.tmux.conf"
 link_file "shared/nvim"           "$HOME/.config/nvim"
 link_file "shared/pgcli"          "$HOME/.config/pgcli"
+link_file "shared/claude/settings.json" "$HOME/.claude/settings.json"
+link_file "shared/claude/statusline.sh" "$HOME/.claude/statusline.sh"
 
 # OS-specific symlinks
 case "$OS" in
