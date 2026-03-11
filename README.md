@@ -188,6 +188,15 @@ Create `~/.tmux-projects.conf` to customize project directories for tmux session
 export TMUX_PROJECT_DIRS="~/projects ~/work ~/dev"
 ```
 
+Nested tmux note: `F12` toggles outer tmux key handling off and back on, which lets you keep using the same prefix when you SSH into another tmux session. If you override the prefix in `~/.tmux.conf.local`, also update `@prefix-key` there so the toggle restores the right key:
+
+```tmux
+set -g @prefix-key 'C-e'
+unbind C-a
+set -g prefix C-e
+bind C-e send-prefix
+```
+
 ### Git Configuration
 
 To override the git user email/name for specific machines, use `.zshrc.local`:

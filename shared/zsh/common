@@ -15,7 +15,7 @@ gbf() {
           --preview 'git log --color=always --decorate --abbrev-commit --date=short --pretty=format:"%C(auto)%h %ad %d %s" -n 10 {}' \
           --preview-window=right:62%)
 
-  [[ -n "$branch" ]] && git checkout -- "$branch"
+  [[ -n "$branch" ]] && git switch "$branch"
 }
 
 vimf() {
