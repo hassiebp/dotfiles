@@ -9,7 +9,7 @@ return {
     providers = {
       claude = {
         endpoint = "https://api.anthropic.com",
-        model = "claude-sonnet-4-20250514",
+        model = "claude-sonnet-4-6",
       },
     },
   },

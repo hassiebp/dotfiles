@@ -5,8 +5,11 @@ plugins=(git)
 source $ZSH/oh-my-zsh.sh
 
 # macOS specific sources
-if command -v brew >/dev/null 2>&1; then
-    source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+if [[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+    bindkey '^ ' autosuggest-accept
+elif command -v brew >/dev/null 2>&1; then
+    source "$(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
     bindkey '^ ' autosuggest-accept
 fi
 
@@ -17,3 +20,11 @@ source "$HOME/dotfiles/shared/zsh/common"
 
 # Source local overwrites that are not source-controlled
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
+
+# pnpm
+export PNPM_HOME="/Users/hassieb/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
