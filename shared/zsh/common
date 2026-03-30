@@ -117,10 +117,67 @@ export EDITOR=nvim
 export VISUAL=nvim
 export MANPAGER='nvim +Man!'
 
-# Load nvm
+# Lazy-load nvm the first time a Node-related command is used.
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+
+_lazy_load_nvm() {
+  unset -f nvm node npm npx pnpm pnpx yarn corepack
+
+  if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+    \. "$NVM_DIR/nvm.sh" --no-use
+    if [[ -s "$NVM_DIR/bash_completion" ]]; then
+      \. "$NVM_DIR/bash_completion"
+    fi
+
+    if [[ "${1:-}" == "use" ]]; then
+      if [[ -f .nvmrc ]]; then
+        nvm use --silent >/dev/null 2>&1 || nvm use default --silent >/dev/null 2>&1
+      else
+        nvm use default --silent >/dev/null 2>&1
+      fi
+    fi
+  fi
+}
+
+nvm() {
+  _lazy_load_nvm
+  nvm "$@"
+}
+
+node() {
+  _lazy_load_nvm use
+  node "$@"
+}
+
+npm() {
+  _lazy_load_nvm use
+  npm "$@"
+}
+
+npx() {
+  _lazy_load_nvm use
+  npx "$@"
+}
+
+pnpm() {
+  _lazy_load_nvm use
+  pnpm "$@"
+}
+
+pnpx() {
+  _lazy_load_nvm use
+  pnpx "$@"
+}
+
+yarn() {
+  _lazy_load_nvm use
+  yarn "$@"
+}
+
+corepack() {
+  _lazy_load_nvm use
+  corepack "$@"
+}
 
 # pyenv configuration (if installed)
 export PYENV_ROOT="$HOME/.pyenv"
