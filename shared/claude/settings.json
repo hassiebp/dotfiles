@@ -21,5 +21,6 @@
   "alwaysThinkingEnabled": true,
   "feedbackSurveyState": {
     "lastShownTime": 1754318624322
-  }
+  },
+  "theme": "light"
 }

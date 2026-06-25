@@ -6,7 +6,11 @@ alias pip=pip3
 alias lg=lazygit
 
 # aliases
-alias glop='git log --oneline --graph --decorate --date=short --pretty=format:"%C(auto)%h %C(green)(%ad) %C(yellow)%d%Creset %s %C(bold blue)<%an>%Creset"'
+alias glp='git log --oneline --graph --decorate --date=short --pretty=format:"%C(auto)%h %C(green)(%ad) %C(yellow)%d%Creset %s %C(bold blue)<%an>%Creset"'
+alias glop=glp
+alias gw='git worktree'
+alias gds='git diff --staged'
+alias gpr='gh pr view -w'
 
 gbf() {
   local branch
@@ -111,6 +115,7 @@ alias tmd='tmux detach'
 alias tmks='tmux kill-session'
 
 alias tg=terragrunt
+tgws() { export TF_WORKSPACE=$1; echo \"Switched to workspace: $TF_WORKSPACE\"; }
 
 # Common env variables
 export EDITOR=nvim
@@ -177,6 +182,11 @@ yarn() {
 corepack() {
   _lazy_load_nvm use
   corepack "$@"
+}
+
+turbo() {
+  _lazy_load_nvm use
+  turbo "$@"
 }
 
 # pyenv configuration (if installed)
