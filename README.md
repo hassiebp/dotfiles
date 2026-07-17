@@ -218,6 +218,13 @@ A: Make sure all prerequisites are installed. The script requires `zsh`, `oh-my-
 **Q: My configs aren't taking effect**
 A: Restart your shell or source the config: `source ~/.zshrc`
 
+**Q: Holding `j`/`k` does not repeat in VS Code Vim mode**
+A: On macOS, disable press-and-hold for VS Code and restart the app:
+
+```bash
+defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false
+```
+
 **Q: I want to undo the installation**
 A: Your original configs are backed up in `~/.dotfiles_backup/`. Remove the symlinks and restore from there.
 
