@@ -50,9 +50,15 @@ case "$OS" in
     macos)
         link_file "macos/zshrc"   "$HOME/.zshrc"
         link_file "macos/ghostty" "$HOME/.config/ghostty"
+        link_file "shared/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
+        link_file "shared/vscode/keybindings.json" "$HOME/Library/Application Support/Code/User/keybindings.json"
+        defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false
+        echo "  → VS Code key repeat"
         ;;
     linux)
         link_file "linux/zshrc"   "$HOME/.zshrc"
+        link_file "shared/vscode/settings.json" "$HOME/.config/Code/User/settings.json"
+        link_file "shared/vscode/keybindings.json" "$HOME/.config/Code/User/keybindings.json"
         ;;
 esac
 

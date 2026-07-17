@@ -16,6 +16,7 @@ Before installing, make sure you have the following installed:
 - **pgcli** - PostgreSQL client (optional, if you use Postgres)
 - **git** - Version control
 - **oh-my-zsh** - Zsh framework
+- **Visual Studio Code** - Editor (optional, if you use VS Code)
 
 ### Quick Start
 
@@ -142,6 +143,7 @@ The base dotfiles installer will:
 - **git** - Git configuration and aliases
 - **tmux** - Terminal multiplexer configuration
 - **nvim** - Neovim configuration (LazyVim-based)
+- **vscode** - Visual Studio Code settings and keybindings
 - **pgcli** - PostgreSQL CLI with smart completion (vi mode enabled)
 - **claude** - Claude Code settings and custom status line script
 
@@ -159,6 +161,8 @@ This dotfiles setup uses **symbolic links** to connect your version-controlled c
 ~/.tmux.conf -> ~/dotfiles/shared/tmux/tmux.conf
 ~/.claude/settings.json -> ~/dotfiles/shared/claude/settings.json
 ~/.claude/statusline.sh -> ~/dotfiles/shared/claude/statusline.sh
+~/Library/Application Support/Code/User/settings.json -> ~/dotfiles/shared/vscode/settings.json
+~/Library/Application Support/Code/User/keybindings.json -> ~/dotfiles/shared/vscode/keybindings.json
 ```
 
 This means you can edit files in the `dotfiles` directory, commit changes, and they immediately take effect in your applications.
@@ -213,6 +217,13 @@ A: Make sure all prerequisites are installed. The script requires `zsh`, `oh-my-
 
 **Q: My configs aren't taking effect**
 A: Restart your shell or source the config: `source ~/.zshrc`
+
+**Q: Holding `j`/`k` does not repeat in VS Code Vim mode**
+A: On macOS, disable press-and-hold for VS Code and restart the app:
+
+```bash
+defaults write com.microsoft.VSCode ApplePressAndHoldEnabled -bool false
+```
 
 **Q: I want to undo the installation**
 A: Your original configs are backed up in `~/.dotfiles_backup/`. Remove the symlinks and restore from there.
