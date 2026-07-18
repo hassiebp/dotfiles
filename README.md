@@ -1,6 +1,6 @@
 # Hassieb's dotfiles
 
-This repository contains my personal configuration files (dotfiles) for various tools and applications, such as `zsh`, `tmux`, `git`, `neovim`, `pgcli`, and `Claude Code`. These dotfiles are managed in a version-controlled repository to easily sync configurations across multiple machines.
+This repository contains my personal configuration files (dotfiles) for various tools and applications, such as `zsh`, `tmux`, `git`, `neovim`, `pgcli`, and coding agents. These dotfiles are managed in a version-controlled repository to easily sync configurations across multiple machines.
 
 ## Installation
 
@@ -146,6 +146,7 @@ The base dotfiles installer will:
 - **vscode** - Visual Studio Code settings and keybindings
 - **pgcli** - PostgreSQL CLI with smart completion (vi mode enabled)
 - **claude** - Claude Code settings and custom status line script
+- **agents** - Harness-neutral personal guidance and reusable skills
 
 ### Platform-Specific
 
@@ -161,6 +162,8 @@ This dotfiles setup uses **symbolic links** to connect your version-controlled c
 ~/.tmux.conf -> ~/dotfiles/shared/tmux/tmux.conf
 ~/.claude/settings.json -> ~/dotfiles/shared/claude/settings.json
 ~/.claude/statusline.sh -> ~/dotfiles/shared/claude/statusline.sh
+~/.codex/AGENTS.md -> ~/dotfiles/shared/agents/AGENTS.md
+~/.agents/skills -> ~/dotfiles/shared/agents/skills
 ~/Library/Application Support/Code/User/settings.json -> ~/dotfiles/shared/vscode/settings.json
 ~/Library/Application Support/Code/User/keybindings.json -> ~/dotfiles/shared/vscode/keybindings.json
 ```

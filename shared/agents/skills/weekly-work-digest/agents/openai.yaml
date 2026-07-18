@@ -1,0 +1,4 @@
+interface:
+  display_name: "Weekly Work Digest"
+  short_description: "Turn recent work into a concise weekly story"
+  default_prompt: "Use $weekly-work-digest to summarize my week as a two-minute narrative plus a topic-by-topic appendix."
