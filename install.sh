@@ -47,6 +47,8 @@ link_file "shared/nvim" "$HOME/.config/nvim"
 link_file "shared/pgcli" "$HOME/.config/pgcli"
 link_file "shared/claude/settings.json" "$HOME/.claude/settings.json"
 link_file "shared/claude/statusline.sh" "$HOME/.claude/statusline.sh"
+link_file "shared/agents/AGENTS.md" "$HOME/.codex/AGENTS.md"
+link_file "shared/agents/skills" "$HOME/.agents/skills"
 
 # OS-specific symlinks
 case "$OS" in
