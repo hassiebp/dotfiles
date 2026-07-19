@@ -28,5 +28,5 @@ Apply these defaults across repositories unless closer project guidance or the u
 
 ## Reusable workflows
 
-- Use `$pr-steward` for pull request CI, review-feedback, mergeability, or readiness loops.
+- Use `$babysit-pr` for pull request CI, review-feedback, mergeability, or readiness loops.
 - Use `$weekly-work-digest` for weekly work summaries and team-ready narratives.

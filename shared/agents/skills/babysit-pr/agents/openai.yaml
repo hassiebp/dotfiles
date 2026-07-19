@@ -1,0 +1,4 @@
+interface:
+  display_name: "BabysitPR"
+  short_description: "Keep PRs healthy without overfitting reviews"
+  default_prompt: "Use $babysit-pr to monitor this pull request, fix proven blockers, and decline review feedback that would add unjustified complexity."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "PR Steward"
-  short_description: "Drive pull requests to human-ready state"
-  default_prompt: "Use $pr-steward to inspect this pull request and keep resolving machine-actionable blockers until it is ready for human review."
