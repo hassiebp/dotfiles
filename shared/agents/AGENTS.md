@@ -9,6 +9,13 @@ Apply these defaults across repositories unless closer project guidance or the u
 - Treat `local only`, `plan only`, `do not publish`, and similar constraints as explicit overrides.
 - If evidence does not justify a change, stop with a precise no-fix conclusion. Do not create a patch or pull request to manufacture progress.
 
+## Visual communication
+
+- Bias strongly toward visual explanations. For complex workflows, architecture, state transitions, event sequences, branching decisions, or interactions across multiple components or systems, lead with an appropriate Mermaid diagram.
+- Choose the smallest diagram that explains the relationship: flowcharts for workflows and decisions, sequence diagrams for interactions, state diagrams for lifecycles, and graphs for dependencies or ownership.
+- Keep diagram labels concise and quote Mermaid labels containing punctuation. Follow the diagram with only the prose needed to explain implications, tradeoffs, or next actions.
+- Do not add a diagram to a simple fact, one-step action, or short answer where it would not improve understanding.
+
 ## Definition of done for published work
 
 - Follow the closest repository instructions for validation and contribution conventions.
