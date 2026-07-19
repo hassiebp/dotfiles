@@ -15,7 +15,7 @@ Apply these defaults across repositories unless closer project guidance or the u
 - Keep the diff focused and preserve unrelated user changes.
 - Run the smallest trustworthy validation set, then self-review the final diff.
 - After opening or updating a pull request, inspect its live checks and unresolved review threads.
-- Fix code-caused CI failures and unambiguous actionable review feedback, push the update, and recheck the new head.
+- Fix code-caused CI failures. Evaluate review feedback independently: implement proven correctness, security, or contract issues, but decline nitpicks, speculative defensive code, unrelated refactors, and unjustified complexity with a concise rationale.
 - Do not hand back merely because CI is still running. Continue monitoring when the current harness supports follow-ups or scheduled task heartbeats.
 - Stop when the pull request is green and waiting on a human, or when blocked on a human decision, permissions, external infrastructure, or an unsafe operation.
 - Never merge, approve, close, force-push, weaken protections, or quarantine a test without clear evidence and authority.
