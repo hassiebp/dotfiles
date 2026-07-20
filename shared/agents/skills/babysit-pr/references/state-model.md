@@ -1,4 +1,4 @@
-# PR steward state model
+# BabysitPR state model
 
 Use deterministic GitHub fields for state and use model judgment only to classify the meaning of comments or failures.
 
@@ -21,9 +21,11 @@ Approval is not required. Human approval happens after readiness.
 | State | Meaning | Action |
 | --- | --- | --- |
 | Resolved or outdated | Finished | Ignore |
-| Reviewer wrote last | Author may owe work | Classify and remediate if unambiguous |
-| Author wrote last | Waiting for reviewer | Do not act |
-| Reviewer replied after author | Author may owe work again | Reclassify |
+| Reviewer wrote last | Author may owe a change, decline, or clarification | Apply the review policy |
+| Author accepted and fixed | Addressed | Reply with evidence; resolve only when authorized |
+| Author declined with rationale | Waiting for reviewer | Do not change code merely to clear the thread |
+| Author asked for clarification | Waiting for reviewer | Do not act |
+| Reviewer replied after author | Author may owe work again | Reclassify from evidence |
 | Bot-only | Depends on configured bot policy | Ignore or classify explicitly |
 | Product, architecture, or security decision | Human judgment required | Notify and stop |
 
