@@ -33,6 +33,14 @@ Apply these defaults across repositories unless closer project guidance or the u
 - Draft public or social communication such as Slack and upstream-project messages unless sending was explicitly requested.
 - Report skipped checks and remaining blockers plainly.
 
+## Langfuse pull requests
+
+- Before opening a pull request targeting a repository in the Langfuse GitHub organization, resolve its corresponding Linear issue.
+- Reuse an existing issue only when it represents the same change; otherwise create a new issue in the appropriate Linear team before publishing the pull request.
+- Ensure the issue records durable context: the motivation and impact, current behavior or evidence, intended solution or shape of the fix, relevant scope, non-goals, and tradeoffs, plus validation, rollout, and follow-up details when applicable. Enrich a thin existing issue before linking it.
+- Link the Linear issue in the pull request description and attach or link the pull request from the Linear issue. Read back both sides to verify the cross-link.
+- Do not publish a Langfuse pull request without a corresponding Linear issue unless the user explicitly overrides this requirement. If Linear is unavailable, stop and report the blocker instead of silently omitting the issue.
+
 ## Reusable workflows
 
 - Use `$babysit-pr` for pull request CI, review-feedback, mergeability, or readiness loops.
