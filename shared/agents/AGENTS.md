@@ -43,6 +43,8 @@ Apply these defaults across repositories unless closer project guidance or the u
 
 ## Reusable workflows
 
+- Use `$audit-feature-documentation` for weekly audits of newly shipped Langfuse features and focused `langfuse-docs` pull requests for proven coverage gaps.
+- Use `$audit-sdk-feature-parity` for weekly semantic parity audits between `langfuse-python` and `langfuse-js`, with Linear-backed fresh implementation tasks for proven gaps.
 - Use `$babysit-pr` for pull request CI, review-feedback, mergeability, or readiness loops.
 - Use `$linear-triage-quick-fixes` for scheduled sweeps of the current user's assigned Linear issues in Triage or Todo; reproduce bugs in fresh per-ticket tasks, ship only bounded quick fixes, independently validate linked community pull requests, recommend next steps, and draft concise unposted clarification replies for source GitHub issues when needed.
 - Use `$weekly-work-digest` for weekly work summaries and team-ready narratives.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "SDK Feature Parity Audit"
+  short_description: "Find and close Python and JS SDK feature gaps"
+  default_prompt: "Use $audit-sdk-feature-parity to compare the Langfuse Python and JS SDKs and dispatch proven feature gaps into fresh implementation tasks."
