@@ -1,6 +1,6 @@
 ---
 name: linear-triage-quick-fixes
-description: Inspect Linear issues assigned to the authenticated user in Triage or Todo, reproduce reported bugs in isolated fresh Codex tasks, ship only straightforward low-risk fixes, and leave evidence-backed recommendations on broader or controversial issues. Use for scheduled personal Linear triage sweeps, daily bug reproduction, autonomous quick-win pull requests, or routing each eligible ticket into a separate Codex task.
+description: Inspect Linear issues assigned to the authenticated user in Triage or Todo, reproduce reported bugs in isolated fresh Codex tasks, ship only straightforward low-risk fixes, independently validate linked community pull requests, and leave evidence-backed action recommendations. Use for scheduled personal Linear sweeps, daily bug reproduction, autonomous quick-win pull requests, community contribution review, or routing each eligible ticket into a separate Codex task.
 ---
 
 # Linear Triage Quick Fixes
@@ -19,8 +19,9 @@ Use this mode for a scheduled or multi-issue triage run.
 4. Before dispatching, search the comments for the `linear-triage-quick-fixes` marker defined below and for older automation comments that clearly record a completed triage outcome. Skip an issue when:
    - a previous workflow comment has the same source fingerprint;
    - an older unmarked workflow comment already reached a terminal outcome from the same still-current evidence;
-   - it already has an active pull request addressing the same bug;
+   - it already has an active pull request owned by the user or the Langfuse team that addresses the same bug;
    - another fresh Codex task for that issue is still active, when task state is available.
+   Do not skip an issue merely because it has a community-authored pull request. Dispatch it for independent reproduction and pull-request review unless the current community PR head is already covered by a previous workflow outcome.
 5. Resolve the most likely repository from issue links, stack traces, file paths, labels, and product area. Use the saved Langfuse project matching that repository.
 6. Create exactly one new Codex task per remaining ticket. Use `create_thread`, not a fork, and target a fresh worktree from the repository's default branch. Never combine tickets in one task or investigate them deeply in the dispatcher context.
 7. Prompt each task to use this skill in `ticket-worker` mode, include the Linear identifier and URL, and tell it to fetch the complete live issue itself. Do not copy conclusions into the prompt.
@@ -33,15 +34,34 @@ If the repository cannot be resolved confidently, create a fresh projectless tic
 
 Use this mode only inside the fresh task created for one issue. Do not create another task.
 
-1. Resolve the authenticated Linear user, then fetch the issue and its comments again. Verify the assignee is still that exact user, the state is still `Triage` or `Todo`, no matching workflow marker or prior terminal workflow comment covers the current evidence, and there is no superseding pull request or resolution.
+1. Resolve the authenticated Linear user, then fetch the issue and its comments again. Verify the assignee is still that exact user, the state is still `Triage` or `Todo`, and no matching workflow marker or prior terminal workflow comment covers the current evidence. Inspect all linked pull requests and identify whether each author is the user, a Langfuse team member, or a community contributor. If affiliation is uncertain, treat the pull request as community-authored and keep all review actions read-only.
 2. Inspect the relevant repository instructions and live default branch. Start from an isolated clean worktree.
 3. Reproduce the report with the smallest trustworthy method: an existing test, focused regression test, minimal example, exact code-path trace, or current logs when available.
 4. Record the evidence and classify the outcome with the quick-fix gate below.
 5. Perform exactly one of these terminal actions:
+   - independently validate a linked community pull request and return an action recommendation;
    - ship a focused draft pull request for a proven quick fix; or
    - add a concise recommendation comment to Linear and make no code change.
 
 Do not manufacture a patch when the report cannot be reproduced.
+
+## Community pull-request review
+
+A community pull request is a proposed solution, not evidence that the reported issue exists. When one is linked or clearly addresses the ticket:
+
+1. Reproduce or directly prove the issue against the current default branch without relying on the contributor's explanation or patch.
+2. If the issue does not reproduce, stop code work and report exactly what was checked. Recommend the missing evidence or revised reproduction needed before evaluating the proposed fix.
+3. If the issue reproduces, inspect the community pull request's current head SHA, complete diff, tests, CI, mergeability, review decision, and unresolved review threads.
+4. Compare the patch with the independently established root cause and expected behavior. Check whether it fully fixes the defect, introduces regressions or unnecessary complexity, includes essential coverage, and stays within the ticket's scope.
+5. Return one concrete recommendation:
+   - proceed to human review;
+   - request specific changes from the contributor;
+   - request a focused test, reproduction, or rebase;
+   - close or supersede the pull request, with the mechanism-based reason; or
+   - escalate a product, architecture, compatibility, or security decision.
+6. Add or update the Linear workflow comment with the reproduction evidence, community pull-request head SHA, findings, and recommended next action. Include the same recommendation in the fresh Codex task result.
+
+Do not approve, merge, close, submit a GitHub review, push to the contributor's branch, or open a competing pull request unless separately and explicitly authorized.
 
 ## Quick-fix gate
 
@@ -87,7 +107,7 @@ Append this hidden marker to workflow-authored comments:
 
 `<!-- linear-triage-quick-fixes:v2 source-fingerprint=<sha256> -->`
 
-Compute the fingerprint deterministically from the current title, description, state, assignee ID, labels, attachments, relations, linked pull-request states, and non-workflow comments. Exclude workflow-authored comments and their timestamps so posting the result cannot retrigger the next run. A later run may act again only when this source fingerprint changes or the prior task failed before producing a terminal outcome.
+Compute the fingerprint deterministically from the current title, description, state, assignee ID, labels, attachments, relations, linked pull-request head SHAs and states, their check and review states, and non-workflow comments. Exclude workflow-authored comments and their timestamps so posting the result cannot retrigger the next run. A later run may act again only when this source fingerprint changes or the prior task failed before producing a terminal outcome.
 
 ## Safety and coverage
 

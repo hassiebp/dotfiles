@@ -44,5 +44,5 @@ Apply these defaults across repositories unless closer project guidance or the u
 ## Reusable workflows
 
 - Use `$babysit-pr` for pull request CI, review-feedback, mergeability, or readiness loops.
-- Use `$linear-triage-quick-fixes` for scheduled sweeps of the current user's assigned Linear issues in Triage or Todo; reproduce bugs in fresh per-ticket tasks, ship only bounded quick fixes, and recommend next steps for broader work.
+- Use `$linear-triage-quick-fixes` for scheduled sweeps of the current user's assigned Linear issues in Triage or Todo; reproduce bugs in fresh per-ticket tasks, ship only bounded quick fixes, independently validate linked community pull requests, and recommend next steps.
 - Use `$weekly-work-digest` for weekly work summaries and team-ready narratives.

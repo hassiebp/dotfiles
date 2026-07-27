@@ -1,4 +1,4 @@
 interface:
   display_name: "Linear Triage Quick Fixes"
-  short_description: "Handle my Triage and Todo quick fixes"
-  default_prompt: "Use $linear-triage-quick-fixes to inspect my assigned Linear issues in Triage or Todo and dispatch each eligible bug to a fresh Codex task."
+  short_description: "Handle my tickets and review community fixes"
+  default_prompt: "Use $linear-triage-quick-fixes to inspect my assigned Triage or Todo tickets, dispatch each eligible bug to a fresh task, and independently review linked community pull requests."
