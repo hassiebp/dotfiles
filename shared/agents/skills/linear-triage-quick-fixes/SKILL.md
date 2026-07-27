@@ -1,6 +1,6 @@
 ---
 name: linear-triage-quick-fixes
-description: Inspect current Linear issues in Triage, reproduce reported bugs in isolated fresh Codex tasks, ship only straightforward low-risk fixes, and leave evidence-backed recommendations on broader or controversial issues. Use for scheduled Linear triage sweeps, daily bug reproduction, autonomous quick-win pull requests, or routing each triage ticket into a separate Codex task.
+description: Inspect Linear issues assigned to the authenticated user in Triage or Todo, reproduce reported bugs in isolated fresh Codex tasks, ship only straightforward low-risk fixes, and leave evidence-backed recommendations on broader or controversial issues. Use for scheduled personal Linear triage sweeps, daily bug reproduction, autonomous quick-win pull requests, or routing each eligible ticket into a separate Codex task.
 ---
 
 # Linear Triage Quick Fixes
@@ -13,17 +13,19 @@ Keep the scheduled run as a lightweight dispatcher. Give every ticket its own fr
 
 Use this mode for a scheduled or multi-issue triage run.
 
-1. Query Linear live for every non-archived issue currently in the `Triage` state. Paginate until coverage is complete.
-2. Read each issue's description, labels, attachments, links, recent comments, relations, and linked pull requests. Do not classify from the title alone.
-3. Skip an issue when:
+1. Resolve the authenticated Linear user's stable member ID. Stop if identity cannot be resolved unambiguously.
+2. Query Linear live for every non-archived issue assigned to that exact member whose current state is `Triage` or `Todo`. Use an assignee filter when supported, then verify the returned assignee ID. Exclude unassigned issues and issues assigned to anyone else. Paginate until coverage is complete.
+3. Read each issue's description, labels, attachments, links, all workflow-relevant comments, relations, and linked pull requests. Do not classify from the title alone.
+4. Before dispatching, search the comments for the `linear-triage-quick-fixes` marker defined below and for older automation comments that clearly record a completed triage outcome. Skip an issue when:
+   - a previous workflow comment has the same source fingerprint;
+   - an older unmarked workflow comment already reached a terminal outcome from the same still-current evidence;
    - it already has an active pull request addressing the same bug;
-   - a previous run reached the same conclusion and the issue has no material new evidence;
    - another fresh Codex task for that issue is still active, when task state is available.
-4. Resolve the most likely repository from issue links, stack traces, file paths, labels, and product area. Use the saved Langfuse project matching that repository.
-5. Create exactly one new Codex task per remaining ticket. Use `create_thread`, not a fork, and target a fresh worktree from the repository's default branch. Never combine tickets in one task or investigate them deeply in the dispatcher context.
-6. Prompt each task to use this skill in `ticket-worker` mode, include the Linear identifier and URL, and tell it to fetch the complete live issue itself. Do not copy conclusions into the prompt.
-7. Dispatch independent tickets concurrently where supported. Wait in bounded batches for completion or attention, without moving ticket work back into the dispatcher context.
-8. Return a compact table containing every triage issue, its disposition (`skipped`, `dispatched`, `quick-fix PR`, `recommendation`, or `blocked`), the fresh task link when available, and any pull-request or Linear-comment link.
+5. Resolve the most likely repository from issue links, stack traces, file paths, labels, and product area. Use the saved Langfuse project matching that repository.
+6. Create exactly one new Codex task per remaining ticket. Use `create_thread`, not a fork, and target a fresh worktree from the repository's default branch. Never combine tickets in one task or investigate them deeply in the dispatcher context.
+7. Prompt each task to use this skill in `ticket-worker` mode, include the Linear identifier and URL, and tell it to fetch the complete live issue itself. Do not copy conclusions into the prompt.
+8. Dispatch independent tickets concurrently where supported. Wait in bounded batches for completion or attention, without moving ticket work back into the dispatcher context.
+9. Return a compact table containing every in-scope issue, its disposition (`skipped`, `dispatched`, `quick-fix PR`, `recommendation`, or `blocked`), the fresh task link when available, and any pull-request or Linear-comment link.
 
 If the repository cannot be resolved confidently, create a fresh projectless ticket task. That task may investigate and recommend a destination, but it must not modify a guessed repository.
 
@@ -31,7 +33,7 @@ If the repository cannot be resolved confidently, create a fresh projectless tic
 
 Use this mode only inside the fresh task created for one issue. Do not create another task.
 
-1. Fetch the issue and its comments from Linear again. Verify it is still in Triage and has no superseding pull request or resolution.
+1. Resolve the authenticated Linear user, then fetch the issue and its comments again. Verify the assignee is still that exact user, the state is still `Triage` or `Todo`, no matching workflow marker or prior terminal workflow comment covers the current evidence, and there is no superseding pull request or resolution.
 2. Inspect the relevant repository instructions and live default branch. Start from an isolated clean worktree.
 3. Reproduce the report with the smallest trustworthy method: an existing test, focused regression test, minimal example, exact code-path trace, or current logs when available.
 4. Record the evidence and classify the outcome with the quick-fix gate below.
@@ -83,9 +85,9 @@ Prefer a mechanism-based recommendation over a speculative implementation plan. 
 
 Append this hidden marker to workflow-authored comments:
 
-`<!-- linear-triage-quick-fixes:v1 issue-updated-at=<ISO timestamp> -->`
+`<!-- linear-triage-quick-fixes:v2 source-fingerprint=<sha256> -->`
 
-Use the issue's current `updatedAt` value. A later run may act again only when the issue materially changed, a linked pull request changed state, or the prior task failed before producing a terminal outcome.
+Compute the fingerprint deterministically from the current title, description, state, assignee ID, labels, attachments, relations, linked pull-request states, and non-workflow comments. Exclude workflow-authored comments and their timestamps so posting the result cannot retrigger the next run. A later run may act again only when this source fingerprint changes or the prior task failed before producing a terminal outcome.
 
 ## Safety and coverage
 
