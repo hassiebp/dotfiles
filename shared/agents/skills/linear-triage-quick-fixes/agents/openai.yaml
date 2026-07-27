@@ -1,0 +1,4 @@
+interface:
+  display_name: "Linear Triage Quick Fixes"
+  short_description: "Reproduce triage bugs and ship only quick fixes"
+  default_prompt: "Use $linear-triage-quick-fixes to inspect current Linear triage issues and dispatch each eligible bug to a fresh Codex task."
