@@ -1,4 +1,4 @@
 interface:
   display_name: "Linear Triage Quick Fixes"
-  short_description: "Handle my tickets and review community fixes"
-  default_prompt: "Use $linear-triage-quick-fixes to inspect my assigned Triage or Todo tickets, dispatch each eligible bug to a fresh task, and independently review linked community pull requests."
+  short_description: "Handle tickets, community fixes, and reporter drafts"
+  default_prompt: "Use $linear-triage-quick-fixes to inspect my assigned Triage or Todo tickets, review community fixes, and draft concise clarification replies for source GitHub issues when needed."
