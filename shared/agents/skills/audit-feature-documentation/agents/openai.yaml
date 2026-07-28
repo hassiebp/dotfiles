@@ -1,0 +1,4 @@
+interface:
+  display_name: "Feature Documentation Audit"
+  short_description: "Find and document newly shipped Langfuse features"
+  default_prompt: "Use $audit-feature-documentation to find shipped Langfuse features missing useful docs and dispatch focused documentation pull requests."
