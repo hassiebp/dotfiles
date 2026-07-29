@@ -7,7 +7,6 @@ alias lg=lazygit
 
 # aliases
 alias glp='git log --oneline --graph --decorate --date=short --pretty=format:"%C(auto)%h %C(green)(%ad) %C(yellow)%d%Creset %s %C(bold blue)<%an>%Creset"'
-alias glop=glp
 alias gw='git worktree'
 alias gds='git diff --staged'
 alias gpr='gh pr view -w'

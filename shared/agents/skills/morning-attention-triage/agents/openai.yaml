@@ -1,0 +1,4 @@
+interface:
+  display_name: "Morning Attention Triage"
+  short_description: "Rank today's support, tracker, Slack, and PR work"
+  default_prompt: "Use $morning-attention-triage to build my evidence-backed priority queue for today."

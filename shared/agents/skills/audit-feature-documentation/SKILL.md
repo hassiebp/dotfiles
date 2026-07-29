@@ -63,12 +63,13 @@ For each coherent gap:
 
 1. Use `create_thread`, never a fork, to create one fresh Codex task in a new `langfuse-docs` worktree from the default branch.
 2. Give it the Linear identifier and source feature links. Require it to fetch and verify the live code, release, issue, and docs state itself.
-3. Follow repository authoring and generated-content conventions. Write the smallest complete guide or canonical-page update with accurate examples and cross-links.
-4. Do not claim availability beyond the verified release or deployment. Distinguish Python, JS or TypeScript, and platform behavior precisely.
-5. Run focused formatting, link, type, build, or content checks required by the repository and self-review the final rendered structure when practical.
-6. Commit, push, and open a draft pull request. Link the Linear issue and pull request both ways and read both links back.
-7. Use `$babysit-pr` until the pull request is ready for human review or reaches a valid blocker.
-8. Post a concise Linear update with the docs pull request, covered user journey, and validation evidence, then read it back.
+3. Once the task's technical thread ID is available, attach `codex://threads/<thread-id>` to the Linear issue as a native URL link titled `Local Codex task`, using the exact returned ID. Rely on the issue-and-URL idempotency and read the attachment back. If Linear rejects the custom URL scheme, fall back to one deduplicated comment containing `[Open local Codex task](codex://threads/<thread-id>)` and read it back. Treat either form as a machine-local convenience, not shared evidence.
+4. Follow repository authoring and generated-content conventions. Write the smallest complete guide or canonical-page update with accurate examples and cross-links.
+5. Do not claim availability beyond the verified release or deployment. Distinguish Python, JS or TypeScript, and platform behavior precisely.
+6. Run focused formatting, link, type, build, or content checks required by the repository and self-review the final rendered structure when practical.
+7. Commit, push, and open a draft pull request. Link the Linear issue and pull request both ways and read both links back.
+8. Use `$babysit-pr` until the pull request is ready for human review or reaches a valid blocker.
+9. Post a concise Linear update with the docs pull request, covered user journey, and validation evidence, then read it back.
 
 If the feature contract, release status, audience, or recommended usage is genuinely ambiguous, do not publish speculative docs. Add an evidence-backed Linear comment naming the exact decision needed.
 

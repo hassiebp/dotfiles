@@ -74,11 +74,12 @@ For each proven gap:
 
 1. Use `create_thread`, never a fork, to create exactly one fresh Codex task in a new worktree of the target SDK from its default branch.
 2. Prompt it with the Linear identifier and source and target repositories, then require it to fetch the live issue and evidence itself. Do not leak the audit's conclusion as assumed truth.
-3. Require the task to re-confirm the source behavior and target absence before editing.
-4. Implement the smallest idiomatic equivalent with focused regression coverage and any required changelog or SDK documentation.
-5. Validate according to repository instructions, self-review, and keep the diff scoped.
-6. Link the Linear issue and draft pull request both ways, read both links back, and use `$babysit-pr` until the pull request is ready for human review or reaches a valid blocker.
-7. Post a concise evidence-backed Linear update with the pull request and verification results, then read it back.
+3. Once the task's technical thread ID is available, attach `codex://threads/<thread-id>` to the Linear issue as a native URL link titled `Local Codex task`, using the exact returned ID. Rely on the issue-and-URL idempotency and read the attachment back. If Linear rejects the custom URL scheme, fall back to one deduplicated comment containing `[Open local Codex task](codex://threads/<thread-id>)` and read it back. Treat either form as a machine-local convenience, not shared evidence.
+4. Require the task to re-confirm the source behavior and target absence before editing.
+5. Implement the smallest idiomatic equivalent with focused regression coverage and any required changelog or SDK documentation.
+6. Validate according to repository instructions, self-review, and keep the diff scoped.
+7. Link the Linear issue and draft pull request both ways, read both links back, and use `$babysit-pr` until the pull request is ready for human review or reaches a valid blocker.
+8. Post a concise evidence-backed Linear update with the pull request and verification results, then read it back.
 
 If implementation reveals a breaking contract, ambiguous product behavior, security-sensitive decision, or coordinated multi-repository requirement, do not publish a speculative patch. Record the blocker and a concrete recommendation on the Linear issue and in the fresh task result.
 
