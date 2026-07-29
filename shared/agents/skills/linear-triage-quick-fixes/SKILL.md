@@ -25,8 +25,9 @@ Use this mode for a scheduled or multi-issue triage run.
 5. Resolve the most likely repository from issue links, stack traces, file paths, labels, and product area. Use the saved Langfuse project matching that repository.
 6. Create exactly one new Codex task per remaining ticket. Use `create_thread`, not a fork, and target a fresh worktree from the repository's default branch. Never combine tickets in one task or investigate them deeply in the dispatcher context.
 7. Prompt each task to use this skill in `ticket-worker` mode, include the Linear identifier and URL, and tell it to fetch the complete live issue itself. Do not copy conclusions into the prompt.
-8. Dispatch independent tickets concurrently where supported. Wait in bounded batches for completion or attention, without moving ticket work back into the dispatcher context.
-9. Return a compact table containing every in-scope issue, its disposition (`skipped`, `dispatched`, `quick-fix PR`, `recommendation`, or `blocked`), the fresh task link when available, and any pull-request or Linear-comment link.
+8. Once each task's technical thread ID is available, attach `codex://threads/<thread-id>` to its Linear issue as a native URL link titled `Local Codex task`, using the exact returned ID. Rely on the issue-and-URL idempotency and read the attachment back. If Linear rejects the custom URL scheme, fall back to one deduplicated comment containing `[Open local Codex task](codex://threads/<thread-id>)` plus the task-link marker below, then read it back. Treat either form as a machine-local convenience, not shared evidence.
+9. Dispatch independent tickets concurrently where supported. Wait in bounded batches for completion or attention, without moving ticket work back into the dispatcher context.
+10. Return a compact table containing every in-scope issue, its disposition (`skipped`, `dispatched`, `quick-fix PR`, `recommendation`, or `blocked`), the local task deep link when available, and any pull-request or Linear-comment link.
 
 If the repository cannot be resolved confidently, create a fresh projectless ticket task. That task may investigate and recommend a destination, but it must not modify a guessed repository.
 
@@ -120,7 +121,9 @@ Append this hidden marker to workflow-authored comments:
 
 `<!-- linear-triage-quick-fixes:v2 source-fingerprint=<sha256> -->`
 
-Compute the fingerprint deterministically from the current title, description, state, assignee ID, labels, attachments, relations, source GitHub issue body and non-workflow comments, linked pull-request head SHAs and states, their check and review states, and Linear non-workflow comments. Exclude workflow-authored comments and their timestamps so posting the result cannot retrigger the next run. A later run may act again only when this source fingerprint changes or the prior task failed before producing a terminal outcome.
+Mark a standalone task-link comment with `<!-- linear-triage-quick-fixes:task-link thread-id=<thread-id> -->`.
+
+Compute the fingerprint deterministically from the current title, description, state, assignee ID, labels, attachments, relations, source GitHub issue body and non-workflow comments, linked pull-request head SHAs and states, their check and review states, and Linear non-workflow comments. Exclude workflow-owned `codex://threads/` task attachments, workflow-authored comments, standalone task-link comments, and their timestamps so linking or reporting the task cannot retrigger the next run. A later run may act again only when this source fingerprint changes or the prior task failed before producing a terminal outcome.
 
 ## Safety and coverage
 

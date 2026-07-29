@@ -1,0 +1,13 @@
+{
+  "openIssue": {
+    "path": "/Users/hassieb/.local/bin/linear-codex-investigate",
+    "args": [
+      "--issue",
+      "{{issue.identifier}}",
+      "--work-dir",
+      "{{workDir}}",
+      "--prompt",
+      "{{prompt}}"
+    ]
+  }
+}

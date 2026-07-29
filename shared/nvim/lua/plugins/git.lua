@@ -111,7 +111,7 @@ return {
             local dv = lib.views[1]
             vim.api.nvim_set_current_tabpage(dv.tabpage)
           else
-            vim.cmd("DiffviewOpen origin/main")
+            vim.cmd("DiffviewOpen origin/main...HEAD")
           end
         end,
         desc = "Toggle diff against main (PR view)",

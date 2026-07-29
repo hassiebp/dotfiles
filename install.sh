@@ -55,6 +55,8 @@ case "$OS" in
 macos)
   link_file "macos/zshrc" "$HOME/.zshrc"
   link_file "macos/ghostty" "$HOME/.config/ghostty"
+  link_file "macos/linear/coding-tools.json" "$HOME/.linear/coding-tools.json"
+  link_file "macos/linear/linear-codex-investigate" "$HOME/.local/bin/linear-codex-investigate"
   link_file "shared/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
   link_file "shared/vscode/keybindings.json" "$HOME/Library/Application Support/Code/User/keybindings.json"
   ;;

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Investigate Linear Ticket"
+  short_description: "Investigate a ticket and recommend a way forward"
+  default_prompt: "Use $investigate-linear-ticket to investigate this Linear ticket and propose an evidence-backed fix or next step."
