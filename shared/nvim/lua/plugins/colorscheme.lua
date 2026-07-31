@@ -41,6 +41,15 @@ return {
   { "projekt0n/github-nvim-theme", name = "github-theme" },
 
   {
+    "akinsho/bufferline.nvim",
+    opts = {
+      options = {
+        themable = false,
+      },
+    },
+  },
+
+  {
     "LazyVim/LazyVim",
     init = function()
       local augroup = vim.api.nvim_create_augroup("HassiebDiffHighlights", { clear = true })
