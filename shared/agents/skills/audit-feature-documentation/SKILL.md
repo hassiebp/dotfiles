@@ -51,11 +51,23 @@ When an existing issue or pull request covers the gap, reuse it and report the c
 
 Before any Langfuse documentation pull request:
 
-1. Reuse the feature's existing Linear issue when it represents the same documentation need. Enrich it with the coverage evidence and intended docs shape when necessary.
-2. Otherwise create a focused Linear issue in the appropriate team containing motivation, audience, shipped-version evidence, current coverage, missing user outcome, intended page or guide shape, scope, non-goals, acceptance criteria, and source links.
+1. Reuse the feature's existing Linear issue when it represents the same documentation need. Enrich it with the coverage evidence and intended docs shape only when the issue is assigned to Hassieb under the mandatory comment boundary below.
+2. Otherwise create a focused Linear issue in the appropriate team, assign it to Hassieb, and include motivation, audience, shipped-version evidence, current coverage, missing user outcome, intended page or guide shape, scope, non-goals, acceptance criteria, and source links in the issue description.
 3. Include the marker above, then read the issue back.
 
 Do not open a `langfuse-docs` pull request without this corresponding issue.
+
+### Linear comment boundary (mandatory)
+
+The audit may create, update, or reply to a Linear issue comment only when that issue is currently assigned to Hassieb Pakzad. This applies to every comment path, including coverage evidence, ambiguity or decision requests, local-task-link fallbacks, pull-request updates, validation results, and follow-ups.
+
+Immediately before each comment write:
+
+1. Resolve the authenticated Linear user with `me` and require the exact Hassieb identity (`ba4a2b76-0a1e-4775-a8c9-1d28e1c309a3`).
+2. Re-fetch the target issue and require its `assigneeId` to equal that authenticated user ID. A matching display name is not sufficient.
+3. Read the complete comment thread and skip the write when the same audit marker or substantive update already exists.
+
+If the issue is unassigned, assigned to anyone else, or its assignee cannot be verified, do not comment, reply, update an existing comment, or reassign the issue to bypass this boundary. Report the skipped write in the audit output. When durable documentation context is still required, create a separate focused documentation issue assigned to Hassieb and place the full context in its description.
 
 ## Fresh documentation task
 
@@ -63,15 +75,15 @@ For each coherent gap:
 
 1. Use `create_thread`, never a fork, to create one fresh Codex task in a new `langfuse-docs` worktree from the default branch.
 2. Give it the Linear identifier and source feature links. Require it to fetch and verify the live code, release, issue, and docs state itself.
-3. Once the task's technical thread ID is available, attach `codex://threads/<thread-id>` to the Linear issue as a native URL link titled `Local Codex task`, using the exact returned ID. Rely on the issue-and-URL idempotency and read the attachment back. If Linear rejects the custom URL scheme, fall back to one deduplicated comment containing `[Open local Codex task](codex://threads/<thread-id>)` and read it back. Treat either form as a machine-local convenience, not shared evidence.
+3. Once the task's technical thread ID is available, attach `codex://threads/<thread-id>` to the Linear issue as a native URL link titled `Local Codex task`, using the exact returned ID. Rely on the issue-and-URL idempotency and read the attachment back. If Linear rejects the custom URL scheme, use a deduplicated comment containing `[Open local Codex task](codex://threads/<thread-id>)` only after passing the mandatory Linear comment boundary, then read it back. Treat either form as a machine-local convenience, not shared evidence.
 4. Follow repository authoring and generated-content conventions. Write the smallest complete guide or canonical-page update with accurate examples and cross-links.
 5. Do not claim availability beyond the verified release or deployment. Distinguish Python, JS or TypeScript, and platform behavior precisely.
 6. Run focused formatting, link, type, build, or content checks required by the repository and self-review the final rendered structure when practical.
 7. Commit, push, and open a draft pull request. Link the Linear issue and pull request both ways and read both links back.
 8. Use `$babysit-pr` until the pull request is ready for human review or reaches a valid blocker.
-9. Post a concise Linear update with the docs pull request, covered user journey, and validation evidence, then read it back.
+9. After passing the mandatory Linear comment boundary, post a concise Linear update with the docs pull request, covered user journey, and validation evidence, then read it back. Otherwise skip the comment and report why.
 
-If the feature contract, release status, audience, or recommended usage is genuinely ambiguous, do not publish speculative docs. Add an evidence-backed Linear comment naming the exact decision needed.
+If the feature contract, release status, audience, or recommended usage is genuinely ambiguous, do not publish speculative docs. Add an evidence-backed Linear comment naming the exact decision needed only after passing the mandatory Linear comment boundary; otherwise report the decision need without commenting.
 
 ## Safety and output
 
