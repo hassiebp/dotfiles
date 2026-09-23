@@ -1,6 +1,6 @@
 ---
 name: investigate-linear-ticket
-description: Investigate one Linear ticket against live issue and repository evidence, reproduce or trace the reported behavior, and propose a focused fix, decision, or next step without implementing it. Use for read-only ticket investigations, “work on issue” launches from Linear into a local Codex task, bug reproduction, root-cause analysis, implementation planning, or recommendation-only triage.
+description: Investigate one Linear ticket against live issue and repository evidence, explain it for a reader starting without issue context, reproduce or trace the reported behavior, and propose a focused fix, decision, or next step without implementing it. Use for read-only ticket investigations, “work on issue” launches from Linear into a local Codex task, bug reproduction, root-cause analysis, implementation planning, or recommendation-only triage.
 ---
 
 # Investigate Linear Ticket
@@ -9,7 +9,7 @@ Investigate one ticket deeply enough that a human can decide what to do next. Tr
 
 ## Workflow
 
-1. Resolve the exact Linear issue from the supplied identifier or URL. Fetch its current description, state, assignee, labels, attachments, relations, linked pull requests, and all relevant comments. Do not rely only on context copied into the launch prompt.
+1. Resolve the exact Linear issue from the supplied identifier or URL. Fetch its current description, state, assignee, labels, attachments, relations, linked pull requests, and all relevant comments. Do not rely only on context copied into the launch prompt. Reconstruct the report for a reader who has not seen the issue: identify the affected user or workflow, relevant system behavior, expected behavior, reported behavior, and why the gap matters.
 2. Resolve the current local task's exact technical thread ID from available task metadata. Attach `codex://threads/<thread-id>` to the issue as a native URL link titled `Local Codex task`, relying on issue-and-URL idempotency, then read it back. If Linear rejects the custom scheme, add one deduplicated comment containing `[Open local Codex task](codex://threads/<thread-id>)` and read it back. Never invent an ID.
 3. Resolve the intended repository from the selected working directory and ticket evidence. Read the applicable repository instructions and inspect git status before deeper work. Preserve unrelated changes and do not treat a dirty checkout as current-default-branch evidence.
 4. Reproduce or directly trace the reported behavior with the smallest trustworthy read-only method: an existing focused test, a minimal example that does not modify tracked files, an exact source-to-sink trace, or current logs and telemetry when authorized.
@@ -26,4 +26,8 @@ Investigate one ticket deeply enough that a human can decide what to do next. Tr
 
 ## Output
 
-Lead with the recommended outcome, then provide concise sections for reproduced behavior and evidence, mechanism or root cause, proposed fix or decision, focused validation, and blockers or uncertainty. Include the Linear issue and local task deep links.
+Always present the investigation in this order. Do not lead with the conclusion or assume the reader has opened the issue.
+
+1. **Context:** Explain the issue from first principles: who or what is affected, the relevant workflow or system, expected and reported behavior, scope, and why it matters. Include the Linear issue and local task deep links.
+2. **Problem:** Present reproduced behavior and evidence, then explain the mechanism or root cause. Clearly separate established facts, plausible hypotheses, missing evidence, and uncertainty.
+3. **Solution:** Recommend exactly one primary outcome and explain why it follows from the evidence. Include the focused fix or decision shape, validation, next steps, and blockers. A request for evidence or a no-fix conclusion still belongs here.

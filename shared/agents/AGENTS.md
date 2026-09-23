@@ -5,6 +5,7 @@ Apply these defaults across repositories unless closer project guidance or the u
 ## Task modes
 
 - Treat `investigate`, `review`, `explain`, and `plan` as read-only. Do not edit, publish, or update external systems unless requested.
+- For every investigation, present the result in `Context` -> `Problem` -> `Solution` order. Assume the reader has not read the source issue or artifact: explain the report, affected workflow, expected behavior, and why it matters before presenting evidence, conclusions, or recommendations.
 - Treat `fix`, `implement`, `resolve`, and `ship` as end-to-end delivery: reproduce when appropriate, implement, test, self-review, commit, push, open a draft pull request, and steward it until it is ready for human review.
 - Treat `local only`, `plan only`, `do not publish`, and similar constraints as explicit overrides.
 - If evidence does not justify a change, stop with a precise no-fix conclusion. Do not create a patch or pull request to manufacture progress.
