@@ -10,6 +10,10 @@ alias glp='git log --oneline --graph --decorate --date=short --pretty=format:"%C
 alias gw='git worktree'
 alias gds='git diff --staged'
 alias gpr='gh pr view -w'
+unalias gcor 2>/dev/null
+gcor() {
+  git fetch origin "$1" && git checkout "$1"
+}
 
 gbf() {
   local branch
