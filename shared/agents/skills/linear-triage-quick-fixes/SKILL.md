@@ -46,6 +46,8 @@ Use this mode only inside the fresh task created for one issue. Do not create an
 
 Do not manufacture a patch when the report cannot be reproduced.
 
+Present every ticket-worker result and workflow-authored Linear outcome in `Context` -> `Problem` -> `Solution` order. In `Context`, assume the reader has not read the issue: explain the affected user or workflow, expected and reported behavior, scope, and why it matters. In `Problem`, give the reproduction evidence and mechanism, separating facts from uncertainty. In `Solution`, give the shipped fix or exactly one recommended next step, its validation, and any blocker.
+
 ## Community pull-request review
 
 A community pull request is a proposed solution, not evidence that the reported issue exists. When one is linked or clearly addresses the ticket:
@@ -100,19 +102,17 @@ For an issue that passes the gate:
 3. Ensure the Linear issue contains the motivation, evidence, fix shape, scope, and validation context required by the global Langfuse pull-request policy. Enrich it if necessary.
 4. Commit, push, and open a draft pull request. Link the Linear issue in the pull-request description and attach the pull request to the Linear issue; read back both links.
 5. Use `$babysit-pr` to steward checks and review feedback until the pull request is green and waiting for a human or reaches a valid blocker.
-6. Add or update one concise Linear comment with the reproduction, root cause, pull request, validation, and remaining blocker if any.
+6. Add or update one concise Linear comment in `Context` -> `Problem` -> `Solution` order with the issue background, reproduction and root cause, pull request, validation, and remaining blocker if any.
 
 Never merge, approve, close, force-push, weaken protections, or silently quarantine a failing test.
 
 ## Recommendation-only outcome
 
-When the report is not reproducible or fails any quick-fix condition, do not edit code, create a branch, or open a pull request. Add one concise Linear comment containing:
+When the report is not reproducible or fails any quick-fix condition, do not edit code, create a branch, or open a pull request. Add one concise Linear comment with `Context`, `Problem`, and `Solution` sections containing:
 
-- what was checked and the exact evidence;
-- whether the report reproduced;
-- why an automatic fix is inappropriate;
-- the recommended next step or two, including material tradeoffs or a decision needed from a human;
-- any minimal missing information needed to continue.
+- **Context:** what the issue reports, the affected workflow, expected behavior, scope, and why it matters;
+- **Problem:** what was checked, the exact evidence, whether the report reproduced, and why an automatic fix is inappropriate;
+- **Solution:** exactly one recommended next step, including material tradeoffs or a decision needed from a human, plus any minimal missing information needed to continue;
 - when applicable, the concise unposted GitHub reporter clarification draft defined above.
 
 Prefer a mechanism-based recommendation over a speculative implementation plan. Avoid repeated comments: look for a prior comment from this workflow and update or omit it when the conclusion and issue evidence are unchanged.

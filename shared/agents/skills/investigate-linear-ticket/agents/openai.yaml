@@ -1,4 +1,4 @@
 interface:
   display_name: "Investigate Linear Ticket"
   short_description: "Investigate a ticket and recommend a way forward"
-  default_prompt: "Use $investigate-linear-ticket to investigate this Linear ticket and propose an evidence-backed fix or next step."
+  default_prompt: "Use $investigate-linear-ticket to explain this Linear ticket for a reader starting cold, investigate it, and present an evidence-backed Context -> Problem -> Solution recommendation."

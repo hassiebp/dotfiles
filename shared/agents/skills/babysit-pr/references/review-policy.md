@@ -2,6 +2,19 @@
 
 The goal is correctness, not comment compliance. Every added line creates maintenance cost; require evidence that the benefit is worth that cost.
 
+## Automated reviewer gate
+
+Treat automated and bot-authored comments as advisory claims. Assess them using the same accept, decline, and clarify criteria below, but do not automatically implement, reply to, or resolve them unless direct evidence establishes an unequivocal bug or P0-level correctness, security, data-loss, or contract issue and the smallest correct fix is unambiguous. A severity label or confident wording from the bot is not evidence.
+
+For every other bot comment, stop before mutation and give the user:
+
+- an **implement**, **decline**, or **clarify** recommendation;
+- the concrete code-path, test, or contract evidence supporting it;
+- the realistic impact if left unchanged; and
+- the maintenance cost, defensive complexity, or scope expansion the suggestion would introduce.
+
+Wait for the user's decision. This gate applies even when the comment would otherwise be classified as accepted.
+
 ## Accept
 
 Accept feedback when inspection or a focused reproduction shows one of these:

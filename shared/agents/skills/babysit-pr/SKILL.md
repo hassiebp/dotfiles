@@ -39,15 +39,20 @@ Classify each comment as:
 - **Decline:** a nitpick, personal preference, unrelated refactor, speculative edge case, redundant defense, unnecessary abstraction, or complexity without a demonstrated failure mode.
 - **Clarify:** potentially important, but the claim or desired behavior is ambiguous and cannot be established from available evidence.
 
-Implement only accepted comments. Prefer the smallest fix that addresses the proven risk. Do not add defensive branches, wrappers, validation, abstractions, or tests simply to satisfy a hypothetical concern.
+Also identify whether the comment came from a human or an automated reviewer. For automated or bot-authored feedback, classification does not by itself authorize implementation:
 
-For declined comments, post a concise, respectful evidence-based reply explaining why the added complexity is not justified. For clarification, ask the narrowest question needed. When the user invokes this skill to babysit or handle review feedback, treat that as authorization to post these necessary thread replies; it does not authorize merging, approving, closing, or force-pushing.
+- Act without asking only when direct evidence establishes an unequivocal bug or P0-level correctness, security, data-loss, or contract issue, and the smallest correct fix is unambiguous.
+- Otherwise, do not change code, reply, or resolve the thread. Present the comment to the user with an **implement**, **decline**, or **clarify** recommendation, the concrete evidence, likely impact, and cost or complexity of the proposed change. Stop as `WAITING_FOR_HUMAN_DECISION` until the user decides.
+
+Implement only authorized accepted comments. Prefer the smallest fix that addresses the proven risk. Do not add defensive branches, wrappers, validation, abstractions, or tests simply to satisfy a hypothetical concern. A bot's severity label or confident wording is not evidence and does not make a comment P0.
+
+For authorized declined comments, post a concise, respectful evidence-based reply explaining why the added complexity is not justified. For authorized clarification, ask the narrowest question needed. When the user invokes this skill to babysit or handle human review feedback, treat that as authorization to post these necessary thread replies. Bot-authored feedback still requires the decision gate above. None of this authorizes merging, approving, closing, or force-pushing.
 
 ## Remediate
 
 Work in this order:
 
-1. **Review feedback:** use the installed GitHub review-comment workflow to read thread-level state and surrounding diff. Group related comments, apply the review policy, validate accepted changes, and reply to accepted, declined, or clarification-needed threads. Resolve only comments that were actually addressed and whose resolution is authorized; leave declined or clarification threads waiting on the reviewer.
+1. **Review feedback:** use the installed GitHub review-comment workflow to read thread-level state and surrounding diff. Group related comments, identify human versus automated authors, apply the review policy and bot decision gate, validate authorized accepted changes, and reply only where authorized. Resolve only comments that were actually addressed and whose resolution is authorized; leave declined, clarification, and user-decision threads open.
 2. **Code-caused CI failure:** use the installed GitHub CI-fix workflow. Inspect the exact logs, distinguish assertions from flaky infrastructure, reproduce locally where useful, make the smallest fix, and run focused checks.
 3. **Merge conflict or stale base:** update using repository policy. Never rewrite published history or force-push unless explicitly authorized.
 4. **Publication:** use the installed GitHub publication workflow when a local change still needs a branch, commit, push, or draft PR.
@@ -84,4 +89,4 @@ Stop without further mutation when it is:
 - `ATTEMPT_LIMIT_REACHED`;
 - `HEAD_CHANGED`, until the new head is reclassified.
 
-Return a compact handoff with the PR link, head SHA, checks, accepted and declined review feedback, mutations made, validation evidence, and the exact reason automation stopped.
+Return a compact handoff with the PR link, head SHA, checks, accepted and declined review feedback, pending bot comments with action recommendations, mutations made, validation evidence, and the exact reason automation stopped.
