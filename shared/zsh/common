@@ -15,6 +15,17 @@ gcor() {
   git fetch origin "$1" && git checkout "$1"
 }
 
+npm-stage-approve-all() {
+  local staged id
+  staged=$(npm stage list) || return
+  printf '%s\n' "$staged"
+
+  while IFS= read -r id; do
+    printf '\n> npm stage approve %s\n' "$id"
+    npm stage approve "$id" || return
+  done < <(printf '%s\n' "$staged" | awk '/^id: / { print $2 }')
+}
+
 gbf() {
   local branch
   branch=$(git for-each-ref --format='%(refname:short)' refs/heads \
